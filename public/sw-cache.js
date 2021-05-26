@@ -16,7 +16,7 @@ let filesToCache = [
     '/img/pushr-152.png',
     '/img/pushr-192.png',
     '/img/pushr-256.png',
-    '/img/pushr-512.png',
+    // '/img/pushr-512.png',
     '/img/pushr-dots.png',
     // '/js/main.js',
     // '/js/pushNotify_client.js'
