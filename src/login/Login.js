@@ -13,7 +13,7 @@ import FacebookLogin from 'react-facebook-login';
 import InstagramLogin from "react-instagram-login";
 import GitHubLogin from 'github-login';
 
-import { useHistory } from "react-router-dom";
+import {useHistory} from "react-router-dom";
 
 function Copyright() {
     return (
@@ -33,20 +33,20 @@ const useStyles = makeStyles((theme) => ({
         marginTop: theme.spacing(6),
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
+        alignItems: 'center'
     },
     avatar: {
         margin: theme.spacing(1),
-        backgroundColor: theme.palette.secondary.main,
+        backgroundColor: theme.palette.secondary.main
     },
     form: {
         width: '100%', // Fix IE 11 issue.
         marginTop: theme.spacing(1),
-        textAlign: 'center',
+        textAlign: 'center'
     },
     submit: {
-        margin: theme.spacing(3, 0, 2),
-    },
+        margin: theme.spacing(3, 0, 2)
+    }
 
 }));
 
@@ -69,7 +69,7 @@ export default function SignIn({setUserContext, userContext}) {
 
         setUserContext({
             userName: 'Benjamin Steinvorth',
-            userImgUrl: 'https://lh3.googleusercontent.com/a-/AOh14GhHZiWTn02o7flxrwSObvb_vv4sRli0kV7ccyL_vA=s96-c',
+            userImgUrl: 'https://lh3.googleusercontent.com/a-/AOh14GhHZiWTn02o7flxrwSObvb_vv4sRli0kV7ccyL_vA=s96-c'
         });
 
         /*
@@ -98,10 +98,10 @@ export default function SignIn({setUserContext, userContext}) {
 
     const onLoginClicked = () => {
         setUserContext({
-            userName: 'Benjamin Steinvorth',
-            userImgUrl: 'https://lh3.googleusercontent.com/a-/AOh14GhHZiWTn02o7flxrwSObvb_vv4sRli0kV7ccyL_vA=s96-c',
+            userName: 'John Doea',
+            userImgUrl: 'https://i.pravatar.cc/96'
         });
-
+        history.push('/dashboard');
         return;
     }
 
@@ -126,36 +126,43 @@ export default function SignIn({setUserContext, userContext}) {
                 <br/>
                 <br/>
                 <form className={classes.form} noValidate>
-                    {/*<GoogleLogin
-                        clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"
-                        buttonText="Login with Google"
-                        onClick={onLoginClicked}
-                        onSuccess={responseGoogle}
-                        onFailure={responseGoogle}
-                        fullWidth
-                    />*/}
-                    <button onClick={onLoginClicked}>Login with google</button><br/>
 
-                    {/*
-                    <FacebookLogin
-                        appId="123"
-                        autoLoad={true}
-                        fields="name,email,picture"
-                        onClick={onLoginClicked}
-                        callback={responseFacebook}
-                    /><br/>
+                    {(process.env.NODE_ENV === "production" ?
+                        <>
+                            <GoogleLogin
+                                clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"
+                                buttonText="Login with Google"
+                                onClick={onLoginClicked}
+                                onSuccess={responseGoogle}
+                                onFailure={responseGoogle}
+                                fullWidth
+                            />
+                            {/*
+                            <FacebookLogin
+                                appId="123"
+                                autoLoad={true}
+                                fields="name,email,picture"
+                                onClick={onLoginClicked}
+                                callback={responseFacebook}
+                            /><br/>
 
-                    <InstagramLogin
-                        clientId="123"
-                        buttonText="Login"
-                        onSuccess={responseInstagram}
-                        onFailure={responseInstagram}
-                    /><br/>
+                            <InstagramLogin
+                                clientId="123"
+                                buttonText="Login"
+                                onSuccess={responseInstagram}
+                                onFailure={responseInstagram}
+                            /><br/>
 
-                    <GitHubLogin clientId="ac56fad434a3a3c1561e"
-                                 onSuccess={responseGitHub}
-                                 onFailure={responseGitHub}
-                    />*/}
+                            <GitHubLogin clientId="ac56fad434a3a3c1561e"
+                                         onSuccess={responseGitHub}
+                                         onFailure={responseGitHub}
+                            />*/}
+                        </>
+                        :
+                        <button onClick={onLoginClicked}>Login with google</button>
+                    )}
+                    <br/>
+
 
                 </form>
                 <br/>
