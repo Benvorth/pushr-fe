@@ -1,4 +1,4 @@
-import React, {isValidElement} from 'react';
+import React from 'react';
 import clsx from 'clsx';
 import Avatar from '@material-ui/core/Avatar';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -16,8 +16,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
+import { useHistory } from "react-router-dom";
 import Badge from '@material-ui/core/Badge';
 import pushRlogo from '../img/pushr-dots.png';
 import DashboardIcon from '@material-ui/icons/Dashboard';
@@ -97,19 +96,18 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 // https://krasimirtsonev.com/blog/article/children-in-jsx
-export default function PushrNavigation(props) {
+export default function PushrNavigation({children, userContext}) {
 
 
     const classes = useStyles();
     const theme = useTheme();
+    let history = useHistory();
+
     const [open, setOpen] = React.useState(false);
     const [toolBarTitle, setToolBarTitle] = React.useState('Dashboard');
     const [selectedIndex, setSelectedIndex] = React.useState(0);
 
-    const children = props.children;
-    const userContext = props.userContext;
-
-    if (Object.keys(userContext).length === 0) {
+    if (!userContext || Object.keys(userContext).length === 0) {
         return children;
     }
 
@@ -121,16 +119,15 @@ export default function PushrNavigation(props) {
         setOpen(false);
     };
 
-    const handleSwitchTab = (target, index) => {
+    const handleSwitchTab = (target, index, url) => {
         setToolBarTitle(target);
         setSelectedIndex(index);
         handleDrawerClose();
+        handleNavigation(url);
     }
 
-    const renderChildren = () => {
-        return React.Children.map(this.props.children, child =>
-            React.cloneElement(child, {})
-        )
+    const handleNavigation = (url) => {
+        history.push(url);
     }
 
     return (
@@ -163,10 +160,7 @@ export default function PushrNavigation(props) {
                         {toolBarTitle}
                     </Typography>
                     <IconButton color="inherit">
-                        <Avatar className={classes.avatar}>
-                            <img width='40' src={userContext.userImgUrl} alt={userContext.userName}/>
-                        </Avatar>
-
+                        <Avatar className={classes.avatar} src={userContext.userImgUrl} alt={userContext.userName} />
                     </IconButton>
                 </Toolbar>
 
@@ -191,7 +185,7 @@ export default function PushrNavigation(props) {
                 </div>
                 <Divider />
                 <List>
-                    <ListItem button selected={selectedIndex === 0} onClick={() => handleSwitchTab('Dashboard', 0)}>
+                    <ListItem button selected={selectedIndex === 0} onClick={() => handleSwitchTab('Dashboard', 0, '/dashboard')}>
                         <ListItemIcon>
                             <DashboardIcon />
                         </ListItemIcon>
@@ -200,21 +194,21 @@ export default function PushrNavigation(props) {
 
                     <Divider />
 
-                    <ListItem button selected={selectedIndex === 1} onClick={() => handleSwitchTab('Trigger', 1)}>
+                    <ListItem button selected={selectedIndex === 1} onClick={() => handleSwitchTab('Trigger', 1, '/trigger')}>
                         <ListItemIcon>
                             <TriggerIcon />
                         </ListItemIcon>
                         <ListItemText primary="Trigger" />
                     </ListItem>
 
-                    <ListItem button selected={selectedIndex === 2} onClick={() => handleSwitchTab('Messages', 2)}>
+                    <ListItem button selected={selectedIndex === 2} onClick={() => handleSwitchTab('Messages', 2, '/messages')}>
                         <ListItemIcon>
                             <MessagesIcon />
                         </ListItemIcon>
                         <ListItemText primary="Messages" />
                     </ListItem>
 
-                    <ListItem button selected={selectedIndex === 3} onClick={() => handleSwitchTab('Recipients', 3)}>
+                    <ListItem button selected={selectedIndex === 3} onClick={() => handleSwitchTab('Recipients', 3, '/recipients')}>
                         <ListItemIcon>
                             <PeopleIcon />
                         </ListItemIcon>
@@ -223,14 +217,14 @@ export default function PushrNavigation(props) {
 
                     <Divider />
 
-                    <ListItem button selected={selectedIndex === 4} onClick={() => handleSwitchTab('Settings', 4)}>
+                    <ListItem button selected={selectedIndex === 4} onClick={() => handleSwitchTab('Settings', 4, '/settings')}>
                         <ListItemIcon>
                             <SettingstIcon />
                         </ListItemIcon>
                         <ListItemText primary="Settings" />
                     </ListItem>
 
-                    <ListItem button selected={selectedIndex === 5} onClick={() => handleSwitchTab('Logout', 5)}>
+                    <ListItem button selected={selectedIndex === 5} onClick={() => handleSwitchTab('Logout', 5, '/logout')}>
                         <ListItemIcon>
                             <LogoutIcon />
                         </ListItemIcon>
@@ -240,7 +234,7 @@ export default function PushrNavigation(props) {
             </Drawer>
             <main className={classes.content}>
                 <div className={classes.toolbar} />
-                {props.children}
+                {children}
 
 
                 {/*<div className={classes.toolbar} />

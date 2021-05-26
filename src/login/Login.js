@@ -1,14 +1,7 @@
 import React from 'react';
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
@@ -20,6 +13,7 @@ import FacebookLogin from 'react-facebook-login';
 import InstagramLogin from "react-instagram-login";
 import GitHubLogin from 'github-login';
 
+import { useHistory } from "react-router-dom";
 
 function Copyright() {
     return (
@@ -56,15 +50,35 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-export default function SignIn() {
+export default function SignIn({setUserContext, userContext}) {
     const classes = useStyles();
+    let history = useHistory();
 
-    const responseGoogle = (response) => {
+    const responseGoogle = (googleUser) => {
+
+        let profile = googleUser.getBasicProfile();
+        debugger;
+        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+        console.log('Name: ' + profile.getName());
+        console.log('Image URL: ' + profile.getImageUrl());
+        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+
+        // user token for backend:
+        const id_token = googleUser.getAuthResponse().id_token;
+        console.log('ID token: ' + id_token);
+
+        setUserContext({
+            userName: 'Benjamin Steinvorth',
+            userImgUrl: 'https://lh3.googleusercontent.com/a-/AOh14GhHZiWTn02o7flxrwSObvb_vv4sRli0kV7ccyL_vA=s96-c',
+        });
+
+        /*
         console.log(response);
         let res = response.profileObj;
         console.log(res);
         debugger;
         // this.signup(response);
+        */
     }
 
     const responseFacebook = (response) => {
@@ -83,7 +97,16 @@ export default function SignIn() {
     };
 
     const onLoginClicked = () => {
+        setUserContext({
+            userName: 'Benjamin Steinvorth',
+            userImgUrl: 'https://lh3.googleusercontent.com/a-/AOh14GhHZiWTn02o7flxrwSObvb_vv4sRli0kV7ccyL_vA=s96-c',
+        });
+
         return;
+    }
+
+    if (!!userContext && 'userImgUrl' in userContext) {
+        history.push('/dashboard');
     }
 
     return (
@@ -97,20 +120,21 @@ export default function SignIn() {
                 <Typography variant="h4">
                     PUSHr
                 </Typography>
-                <Typography variant="h7">
-                    notifying you
+                <Typography variant="h6">
+                    get notified
                 </Typography>
                 <br/>
                 <br/>
                 <form className={classes.form} noValidate>
-                    <GoogleLogin
+                    {/*<GoogleLogin
                         clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"
                         buttonText="Login with Google"
                         onClick={onLoginClicked}
                         onSuccess={responseGoogle}
                         onFailure={responseGoogle}
                         fullWidth
-                    /><br/>
+                    />*/}
+                    <button onClick={onLoginClicked}>Login with google</button><br/>
 
                     {/*
                     <FacebookLogin

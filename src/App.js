@@ -1,17 +1,13 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {BrowserRouter as Router, Switch, Route, Link} from 'react-router-dom';
-import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/core/styles';
+import { unstable_createMuiStrictModeTheme as createMuiTheme } from '@material-ui/core';
 // import './App.css';
 import Login from './login/Login';
-import LoginByGoogle from './login/LoginByGoogle';
+import PushServicePanel from './pushService/pushServicePanel';
 
 import PushrNavigation from './pages/PushrNavigation';
 import Dashboard from './dashboard/Dashboard';
-import Dashboard2 from './dashboard/Dashboard2';
-import Dashboard3 from './dashboard/Dashboard3';
-import Dashboard4 from './dashboard/Dashboard4';
-
-
 
 function App() {
 
@@ -33,20 +29,29 @@ function App() {
         },
     });
 
-    let userContext = {
+    const [userContext, setUserContext] = useState({
         userName: 'Benjamin Steinvorth',
         userImgUrl: 'https://lh3.googleusercontent.com/a-/AOh14GhHZiWTn02o7flxrwSObvb_vv4sRli0kV7ccyL_vA=s96-c',
-    };
+    });
+
+
 
     return (
-
         <div className="App">
             <ThemeProvider theme={theme}>
             <Router>
                 <PushrNavigation userContext={userContext}>
                     <Switch>
-                        <Route exact path='/' component={Login} />
-                        <Route path='/Dashboard' component={Dashboard} />
+                        <Route exact path='/' render={(props) => (
+                            <Login {...props} setUserContext={setUserContext} userContext={userContext}/>
+                        )} />
+                        <Route path='/dashboard' render={(props) => (
+                            <Dashboard {...props} userContext={userContext}/>
+                        )} />
+                        <Route path='/trigger' component={Login} />
+                        <Route path='/messages' component={Login} />
+                        <Route path='/settings' component={PushServicePanel} />
+                        <Route path='/logout' component={Login} />
                     </Switch>
                 </PushrNavigation>
             </Router>
