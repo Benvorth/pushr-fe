@@ -120,7 +120,7 @@ export default function SignIn({setUserContext, userContext}) {
                 <Typography variant="h4">
                     PUSHr
                 </Typography>
-                <Typography variant="h5">
+                <Typography variant="h7">
                     open notifications
                 </Typography>
                 <br/>

@@ -1,5 +1,5 @@
 
-/* Make content area fill the entire browser window */
+/* Make content area fill the entire browser window
 html,
 .fullscreen {
     display: flex;
@@ -7,10 +7,10 @@ html,
     margin: 0;
     padding: 0;
     width: 100%;
-}
+}*/
 
-/* Center the content in the browser window */
+/* Center the content in the browser window
 .container {
     margin: auto;
     text-align: center;
-}
+}*/
