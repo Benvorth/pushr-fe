@@ -159,6 +159,24 @@ export default function usePushNotifications() {
         setLoading(false);
     };
 
+    const onClickClaimToken = async () => {
+        setLoading(true);
+        setError(false);
+        await http.post(
+            `/api/claimToken?token=F0-34-AC-03&subscriptionId=${pushServerSubscriptionId}`
+        ).then(response => {
+            console.log('Token F0-34-AC-03 claimed successfully.');
+            setInfo('Token F0-34-AC-03 claimed successfully.');
+            setPushServerSubscriptionId(response.result);
+            setLoading(false);
+        })
+        .catch(err => {
+            console.info('Could not claim token F0-34-AC-03');
+            setLoading(false);
+            setError(err);
+        });
+    }
+
     /**
      * returns all the stuff needed by a Component
      */
@@ -174,6 +192,7 @@ export default function usePushNotifications() {
         error,
         loading,
         info, setInfo,
-        lastMessage, setLastMessage
+        lastMessage, setLastMessage,
+        onClickClaimToken
     };
 }

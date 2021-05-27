@@ -61,7 +61,8 @@ export default function PushServicePanel({userContext, title, selectedIndex, set
         error,
         loading,
         info, setInfo,
-        lastMessage, setLastMessage
+        lastMessage, setLastMessage,
+        onClickClaimToken
     } = pushService();
 
     const isConsentGranted = userConsent === "granted";
@@ -101,6 +102,7 @@ export default function PushServicePanel({userContext, title, selectedIndex, set
                     <div>
                         <p>The server accepted the push subscrption!</p>
                         <button onClick={onClickSendNotification}>Send a notification</button>
+                        <button onClick={onClickClaimToken}>Claim token F0-34-AC-03</button>
                     </div>
                 )}
                 <br/>

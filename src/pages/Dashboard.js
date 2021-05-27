@@ -11,6 +11,11 @@ export default function Dashboard({userContext, title, selectedIndex, setSelecte
         history.push('/login');
     }
 
+    // todo: PushMsg handling automated (from pushServicePanel)
+    if (!!token) {
+        // todo: claim token here
+    }
+
     return (
         <PushrNavigation userContext={userContext} title={title} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}>
             <div className="container">
