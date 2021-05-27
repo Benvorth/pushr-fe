@@ -115,7 +115,7 @@ export default function SignIn({setUserContext, userContext}) {
             <Paper className={classes.paper}>
                 <br/>
                 <br/>
-                <img src={pushRlogo}/>
+                <img src={pushRlogo} width="70"/>
                 <br/>
                 <Typography variant="h4">
                     PUSHr
