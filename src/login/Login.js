@@ -115,13 +115,13 @@ export default function SignIn({setUserContext, userContext}) {
             <Paper className={classes.paper}>
                 <br/>
                 <br/>
-                <img src={pushRlogo} width="70"/>
+                <img src={pushRlogo} width="70" alt="PUSHr - open notifications"/>
                 <br/>
                 <Typography variant="h4">
                     PUSHr
                 </Typography>
-                <Typography variant="h6">
-                    get notified
+                <Typography variant="h5">
+                    open notifications
                 </Typography>
                 <br/>
                 <br/>
