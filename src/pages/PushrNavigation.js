@@ -153,7 +153,7 @@ export default function PushrNavigation({children, userContext}) {
                     </IconButton>
                     <IconButton color="inherit">
                         <Badge badgeContent={0} color="secondary">
-                            <img src={pushRlogo} width="70" alt="PUSHr - open notifications"/>
+                            <img src={pushRlogo} width="50" alt="PUSHr - open notifications"/>
                         </Badge>
                     </IconButton>
                     <Typography variant="h6" noWrap className={classes.title}>
