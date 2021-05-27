@@ -163,7 +163,8 @@ export default function usePushNotifications() {
         setLoading(true);
         setError(false);
         await http.post(
-            `/api/claimToken?token=F0-34-AC-03&subscriptionId=${pushServerSubscriptionId}`
+            '/api/claimToken?token=' + encodeURIComponent('F0-34-AC-03') + '' +
+            '&subscriptionId=' + encodeURIComponent(pushServerSubscriptionId)
         ).then(response => {
             console.log('Token F0-34-AC-03 claimed successfully.');
             setInfo('Token F0-34-AC-03 claimed successfully.');
