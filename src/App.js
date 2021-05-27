@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {BrowserRouter as Router, Switch, Route, Link} from 'react-router-dom';
+import {BrowserRouter, Switch, Route, Link} from 'react-router-dom';
 import {ThemeProvider} from '@material-ui/core/styles';
 import {unstable_createMuiStrictModeTheme as createMuiTheme} from '@material-ui/core';
 // import './App.css';
@@ -41,7 +41,7 @@ function App() {
     return (
         <div className="App">
             <ThemeProvider theme={theme}>
-                <Router>
+                <BrowserRouter>
                     <PushrNavigation userContext={userContext}>
                         <Switch>
                             <Route exact path='/' render={(props) => (
@@ -56,7 +56,7 @@ function App() {
                             <Route path='/logout' component={Login}/>
                         </Switch>
                     </PushrNavigation>
-                </Router>
+                </BrowserRouter>
             </ThemeProvider>
         </div>
 
