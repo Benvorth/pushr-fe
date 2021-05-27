@@ -41,7 +41,7 @@ function App() {
     return (
         <div className="App">
             <ThemeProvider theme={theme}>
-                <Router basename='/index.html'>
+                <Router>
                     <PushrNavigation userContext={userContext}>
                         <Switch>
                             <Route exact path='/' render={(props) => (
