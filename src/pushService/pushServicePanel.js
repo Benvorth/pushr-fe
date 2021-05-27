@@ -3,6 +3,8 @@ import {useState} from "react";
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import pushService from "./pushService";
+import PushrNavigation from '../pages/PushrNavigation';
+import Recipients from '../pages/Recipients';
 
 
 const Loading = ({ loading }) => (loading ? <div className="app-loader">Please wait, we are loading something...</div> : null);
@@ -37,7 +39,7 @@ const PushMsg = ({lastMessage, onClose}) =>
         </Snackbar>
     ) : null;
 
-export default function PushServicePanel() {
+export default function PushServicePanel({userContext, title, selectedIndex, setSelectedIndex}) {
 
 
     const handleInfoClose = () => {
@@ -66,47 +68,50 @@ export default function PushServicePanel() {
 
 
     return (
-        <div>
-            <Loading loading={loading}/>
+        <PushrNavigation userContext={userContext} title={title} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}>
+            <div>
+                <Loading loading={loading}/>
 
-            <p>Push notification are {!pushNotificationSupported && "NOT"} supported by your device.</p>
+                <p>Push notification are {!pushNotificationSupported && "NOT"} supported by your device.</p>
 
-            <p>
-                User consent to receive push notifications is <strong>{userConsent}</strong>.
-            </p>
+                <p>
+                    User consent to receive push notifications is <strong>{userConsent}</strong>.
+                </p>
 
-            <Error error={error}/>
-            <Info info={info} onClose={handleInfoClose}/>
-            <PushMsg lastMessage={lastMessage} onClose={handlePushMsgClose}/>
+                <Error error={error}/>
+                <Info info={info} onClose={handleInfoClose}/>
+                <PushMsg lastMessage={lastMessage} onClose={handlePushMsgClose}/>
 
 
-            <button disabled={!pushNotificationSupported || isConsentGranted} onClick={onClickAskUserPermission}>
-                {isConsentGranted ? "Consent granted" : " Ask user permission"}
-            </button>
+                <button disabled={!pushNotificationSupported || isConsentGranted} onClick={onClickAskUserPermission}>
+                    {isConsentGranted ? "Consent granted" : " Ask user permission"}
+                </button><br/>
 
-            <button disabled={!pushNotificationSupported || !isConsentGranted || userSubscription}
-                    onClick={onClickSubscribeToPushNotification}>
-                {userSubscription ? "Push subscription created" : "Create Notification subscription"}
-            </button>
+                <button disabled={!pushNotificationSupported || !isConsentGranted || userSubscription}
+                        onClick={onClickSubscribeToPushNotification}>
+                    {userSubscription ? "Push subscription created" : "Create Notification subscription"}
+                </button><br/>
 
-            <button disabled={!userSubscription || pushServerSubscriptionId}
-                    onClick={onClickSendSubscriptionToPushServer}>
-                {pushServerSubscriptionId ? "Subscrption sent to the server" : "Send subscription to push server"}
-            </button>
+                <button disabled={!userSubscription || pushServerSubscriptionId}
+                        onClick={onClickSendSubscriptionToPushServer}>
+                    {pushServerSubscriptionId ? "Subscrption sent to the server" : "Send subscription to push server"}
+                </button><br/>
 
-            {pushServerSubscriptionId && (
-                <div>
-                    <p>The server accepted the push subscrption!</p>
-                    <button onClick={onClickSendNotification}>Send a notification</button>
-                </div>
-            )}
+                {pushServerSubscriptionId && (
+                    <div>
+                        <p>The server accepted the push subscrption!</p>
+                        <button onClick={onClickSendNotification}>Send a notification</button>
+                    </div>
+                )}
+                <br/>
 
-            <section>
-                <h4>Your notification subscription details</h4>
-                <pre>
-                    <code>{JSON.stringify(userSubscription, null, " ")}</code>
-                </pre>
-            </section>
-        </div>
+                {/*<section>
+                    <h4>Your notification subscription details</h4>
+                    <pre>
+                        <code>{JSON.stringify(userSubscription, null, " ")}</code>
+                    </pre>
+                </section>*/}
+            </div>
+        </PushrNavigation>
     );
 }

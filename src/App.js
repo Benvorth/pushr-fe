@@ -1,65 +1,82 @@
 import React, {useState} from 'react';
 import {BrowserRouter as Router, Switch, Route, Link} from 'react-router-dom';
-import {ThemeProvider} from '@material-ui/core/styles';
-import {unstable_createMuiStrictModeTheme as createMuiTheme} from '@material-ui/core';
-// import './App.css';
-import Login from './login/Login';
-import PushServicePanel from './pushService/pushServicePanel';
 
-import PushrNavigation from './pages/PushrNavigation';
-import Dashboard from './dashboard/Dashboard';
+// import './App.css';
+import Login from './pages/login/Login';
+import Dashboard from './pages/Dashboard';
+import Trigger from './pages/Trigger';
+import Messages from './pages/Messages';
+import Recipients from './pages/Recipients';
+import Settings from './pushService/pushServicePanel';
+import Logout from './pages/Logout';
 
 function App() {
-
-    const theme = createMuiTheme({
-        palette: {
-            primary: {
-                light: '#4f5b62',
-                main: '#000a12',
-                dark: '#263238',
-                contrastText: '#eee'
-            },
-            secondary: {
-                light: '#ff7961',
-                // main: '#f44336',
-                main: '#ff7961',
-                dark: '#ba000d',
-                contrastText: '#000'
-            }
-        }
-    });
 
     const [userContext, setUserContext] = useState(
         (process.env.NODE_ENV === "production" ? null :
                 {
                     userName: 'John Doea',
-                    userImgUrl: 'https://i.pravatar.cc/96'
+                    userImgUrl: 'https://i.pravatar.cc/96',
+                    loginProvider: 'Google'
                 }
         ));
 
+    const [selectedIndex, setSelectedIndex] = useState(0);
+
+
 
     return (
-        <div className="App">
-            <ThemeProvider theme={theme}>
-                <Router>
-                    <PushrNavigation userContext={userContext}>
-                        <Switch>
-                            <Route exact path='/' render={(props) => (
-                                <Login {...props} setUserContext={setUserContext} userContext={userContext}/>
-                            )}/>
-                            <Route path='/dashboard' render={(props) => (
-                                <Dashboard {...props} userContext={userContext}/>
-                            )}/>
-                            <Route path='/trigger' component={Login}/>
-                            <Route path='/messages' component={Login}/>
-                            <Route path='/settings' component={PushServicePanel}/>
-                            <Route path='/logout' component={Login}/>
-                        </Switch>
-                    </PushrNavigation>
-                </Router>
-            </ThemeProvider>
-        </div>
-
+        <Router>
+            <Switch>
+                <Route exact path='/' render={(props) => (
+                    <Login {...props}
+                           setUserContext={setUserContext} userContext={userContext} title={'Login'}
+                           selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
+                    />
+                )}/>
+                <Route path='/login' render={(props) => (
+                    <Login {...props}
+                           setUserContext={setUserContext} userContext={userContext} title={'Login'}
+                           selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
+                    />
+                )}/>
+                <Route path='/dashboard' render={(props) => (
+                    <Dashboard {...props}
+                               userContext={userContext} title={'Dashboard'}
+                               selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
+                    />
+                )}/>
+                <Route path='/trigger' render={(props) => (
+                    <Trigger {...props}
+                             userContext={userContext} title={'Trigger'}
+                             selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
+                    />
+                )}/>
+                <Route path='/messages' render={(props) => (
+                    <Messages {...props} userContext={userContext} title={'Messages'}
+                              selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
+                    />
+                )}/>
+                <Route path='/recipients' render={(props) => (
+                    <Recipients {...props}
+                                userContext={userContext} title={'Recipients'}
+                                selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
+                    />
+                )}/>
+                <Route path='/settings' render={(props) => (
+                    <Settings {...props}
+                              userContext={userContext} title={'Settings'}
+                              selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
+                    />
+                )}/>
+                <Route path='/logout' render={(props) => (
+                    <Logout {...props}
+                           userContext={userContext} setUserContext={setUserContext} title={'Logout'}
+                           selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
+                    />
+                )}/>
+            </Switch>
+        </Router>
     );
 }
 

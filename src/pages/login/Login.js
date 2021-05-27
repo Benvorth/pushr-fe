@@ -7,7 +7,8 @@ import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
 
-import pushRlogo from '../img/pushr-dots.svg';
+import PushrNavigation from '../PushrNavigation';
+import pushRlogo from '../../img/pushr-dots.svg';
 import GoogleLogin from 'react-google-login';
 import FacebookLogin from 'react-facebook-login';
 import InstagramLogin from "react-instagram-login";
@@ -30,7 +31,7 @@ function Copyright() {
 
 const useStyles = makeStyles((theme) => ({
     paper: {
-        marginTop: theme.spacing(6),
+        marginTop: '50%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center'
@@ -47,10 +48,9 @@ const useStyles = makeStyles((theme) => ({
     submit: {
         margin: theme.spacing(3, 0, 2)
     }
-
 }));
 
-export default function SignIn({setUserContext, userContext}) {
+export default function Login({setUserContext, userContext, title, selectedIndex, setSelectedIndex}) {
     const classes = useStyles();
     let history = useHistory();
 
@@ -68,8 +68,10 @@ export default function SignIn({setUserContext, userContext}) {
         console.log('ID token: ' + id_token);
 
         setUserContext({
-            userName: 'Benjamin Steinvorth',
-            userImgUrl: 'https://lh3.googleusercontent.com/a-/AOh14GhHZiWTn02o7flxrwSObvb_vv4sRli0kV7ccyL_vA=s96-c'
+            userIdToken: id_token,
+            userName: profile.getName(),
+            userImgUrl: profile.getImageUrl(),
+            loginProvider: 'Google'
         });
 
         /*
@@ -99,7 +101,8 @@ export default function SignIn({setUserContext, userContext}) {
     const onLoginClicked = () => {
         setUserContext({
             userName: 'John Doea',
-            userImgUrl: 'https://i.pravatar.cc/96'
+            userImgUrl: 'https://i.pravatar.cc/96',
+            loginProvider: 'Google'
         });
         history.push('/dashboard');
         return;
@@ -110,34 +113,36 @@ export default function SignIn({setUserContext, userContext}) {
     }
 
     return (
-        <Container component="main" maxWidth="xs">
-            <CssBaseline/>
-            <Paper className={classes.paper}>
-                <br/>
-                <br/>
-                <img src={pushRlogo} width="70" alt="PUSHr - open notifications"/>
-                <br/>
-                <Typography variant="h4">
-                    PUSHr
-                </Typography>
-                <Typography variant="h7">
-                    open notifications
-                </Typography>
-                <br/>
-                <br/>
-                <form className={classes.form} noValidate>
+        <PushrNavigation userContext={userContext} title={title} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}>
+            <Container component="main" maxWidth="xs">
+                <CssBaseline/>
+                <Paper className={classes.paper}>
+                    <br/>
+                    <br/>
+                    <img src={pushRlogo} width="70" alt="PUSHr - open notifications"/>
+                    <br/>
+                    <Typography variant="h4">
+                        PUSHr
+                    </Typography>
+                    <Typography variant="h7">
+                        open notifications
+                    </Typography>
+                    <br/>
+                    <br/>
+                    <form className={classes.form} noValidate>
 
-                    {(process.env.NODE_ENV === "production" ?
-                        <>
-                            <GoogleLogin
-                                clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"
-                                buttonText="Login with Google"
-                                onClick={onLoginClicked}
-                                onSuccess={responseGoogle}
-                                onFailure={responseGoogle}
-                                fullWidth
-                            />
-                            {/*
+                        {(process.env.NODE_ENV === "production" ?
+                                <>
+                                    <GoogleLogin
+                                        clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"
+                                        buttonText="Login with Google"
+                                        onClick={onLoginClicked}
+                                        onSuccess={responseGoogle}
+                                        onFailure={responseGoogle}
+                                        isSignedIn={true}
+                                        fullWidth
+                                    />
+                                    {/*
                             <FacebookLogin
                                 appId="123"
                                 autoLoad={true}
@@ -157,19 +162,20 @@ export default function SignIn({setUserContext, userContext}) {
                                          onSuccess={responseGitHub}
                                          onFailure={responseGitHub}
                             />*/}
-                        </>
-                        :
-                        <button onClick={onLoginClicked}>Login with google</button>
-                    )}
+                                </>
+                                :
+                                <button onClick={onLoginClicked}>Login with google</button>
+                        )}
+                        <br/>
+
+
+                    </form>
                     <br/>
-
-
-                </form>
-                <br/>
-            </Paper>
-            <Box mt={2}>
-                <Copyright/>
-            </Box>
-        </Container>
+                </Paper>
+                <Box mt={2}>
+                    <Copyright/>
+                </Box>
+            </Container>
+        </PushrNavigation>
     );
 }

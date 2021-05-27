@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
 import Avatar from '@material-ui/core/Avatar';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import {
+    makeStyles,
+    ThemeProvider,
+    unstable_createMuiStrictModeTheme as createMuiTheme
+} from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -26,7 +30,6 @@ import PeopleIcon from '@material-ui/icons/People';
 import SettingstIcon from '@material-ui/icons/Settings';
 import LogoutIcon from '@material-ui/icons/ExitToApp';
 import Menu from '@material-ui/core/Menu';
-
 
 const drawerWidth = 240;
 
@@ -96,16 +99,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 // https://krasimirtsonev.com/blog/article/children-in-jsx
-export default function PushrNavigation({children, userContext}) {
-
+export default function PushrNavigation({children, userContext, title, selectedIndex, setSelectedIndex}) {
 
     const classes = useStyles();
-    const theme = useTheme();
+    // const theme = useTheme();
     let history = useHistory();
 
     const [open, setOpen] = React.useState(false);
-    const [toolBarTitle, setToolBarTitle] = React.useState('Dashboard');
-    const [selectedIndex, setSelectedIndex] = React.useState(0);
+    // const [selectedIndex, setSelectedIndex] = React.useState(0);
 
     if (!userContext || Object.keys(userContext).length === 0) {
         return children;
@@ -119,8 +120,7 @@ export default function PushrNavigation({children, userContext}) {
         setOpen(false);
     };
 
-    const handleSwitchTab = (target, index, url) => {
-        setToolBarTitle(target);
+    const handleSwitchTab = (index, url) => {
         setSelectedIndex(index);
         handleDrawerClose();
         handleNavigation(url);
@@ -130,138 +130,160 @@ export default function PushrNavigation({children, userContext}) {
         history.push(url);
     }
 
+    const theme = createMuiTheme({
+        palette: {
+            primary: {
+                light: '#4f5b62',
+                main: '#000a12',
+                dark: '#263238',
+                contrastText: '#eee'
+            },
+            secondary: {
+                light: '#ff7961',
+                // main: '#f44336',
+                main: '#ff7961',
+                dark: '#ba000d',
+                contrastText: '#000'
+            }
+        }
+    });
+
     return (
-        <div className={classes.root}>
-            <CssBaseline />
-            <AppBar
-                position="fixed"
-                className={clsx(classes.appBar, {
-                    [classes.appBarShift]: open,
-                })}
-            >
-                <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={handleDrawerOpen}
-                        edge="start"
-                        className={clsx(classes.menuButton, {
-                            [classes.hide]: open,
+        <div className="App">
+            <ThemeProvider theme={theme}>
+                <div className={classes.root}>
+                    <CssBaseline />
+                    <AppBar
+                        position="fixed"
+                        className={clsx(classes.appBar, {
+                            [classes.appBarShift]: open,
                         })}
                     >
-                        <MenuIcon />
-                    </IconButton>
-                    <IconButton color="inherit">
-                        <Badge badgeContent={0} color="secondary">
-                            <img src={pushRlogo} width="50" alt="PUSHr - open notifications"/>
-                        </Badge>
-                    </IconButton>
-                    <Typography variant="h6" noWrap className={classes.title}>
-                        {toolBarTitle}
-                    </Typography>
-                    <IconButton color="inherit">
-                        <Avatar className={classes.avatar} src={userContext.userImgUrl} alt={userContext.userName} />
-                    </IconButton>
-                </Toolbar>
+                        <Toolbar>
+                            <IconButton
+                                color="inherit"
+                                aria-label="open drawer"
+                                onClick={handleDrawerOpen}
+                                edge="start"
+                                className={clsx(classes.menuButton, {
+                                    [classes.hide]: open,
+                                })}
+                            >
+                                <MenuIcon />
+                            </IconButton>
+                            <IconButton color="inherit">
+                                <Badge badgeContent={0} color="secondary">
+                                    <img src={pushRlogo} width="50" alt="PUSHr - open notifications"/>
+                                </Badge>
+                            </IconButton>
+                            <Typography variant="h6" noWrap className={classes.title}>
+                                {title}
+                            </Typography>
+                            <IconButton color="inherit">
+                                <Avatar className={classes.avatar} src={userContext.userImgUrl} alt={userContext.userName} />
+                            </IconButton>
+                        </Toolbar>
 
-            </AppBar>
-            <Drawer
-                variant="permanent"
-                className={clsx(classes.drawer, {
-                    [classes.drawerOpen]: open,
-                    [classes.drawerClose]: !open,
-                })}
-                classes={{
-                    paper: clsx({
-                        [classes.drawerOpen]: open,
-                        [classes.drawerClose]: !open,
-                    }),
-                }}
-            >
-                <div className={classes.toolbar}>
-                    <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-                    </IconButton>
+                    </AppBar>
+                    <Drawer
+                        variant="permanent"
+                        className={clsx(classes.drawer, {
+                            [classes.drawerOpen]: open,
+                            [classes.drawerClose]: !open,
+                        })}
+                        classes={{
+                            paper: clsx({
+                                [classes.drawerOpen]: open,
+                                [classes.drawerClose]: !open,
+                            }),
+                        }}
+                    >
+                        <div className={classes.toolbar}>
+                            <IconButton onClick={handleDrawerClose}>
+                                {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+                            </IconButton>
+                        </div>
+                        <Divider />
+                        <List>
+                            <ListItem button selected={selectedIndex === 0} onClick={() => handleSwitchTab(0, '/dashboard')}>
+                                <ListItemIcon>
+                                    <DashboardIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="Dashboard" />
+                            </ListItem>
+
+                            <Divider />
+
+                            <ListItem button selected={selectedIndex === 1} onClick={() => handleSwitchTab(1, '/trigger')}>
+                                <ListItemIcon>
+                                    <TriggerIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="Trigger" />
+                            </ListItem>
+
+                            <ListItem button selected={selectedIndex === 2} onClick={() => handleSwitchTab(2, '/messages')}>
+                                <ListItemIcon>
+                                    <MessagesIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="Messages" />
+                            </ListItem>
+
+                            <ListItem button selected={selectedIndex === 3} onClick={() => handleSwitchTab(3, '/recipients')}>
+                                <ListItemIcon>
+                                    <PeopleIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="Recipients" />
+                            </ListItem>
+
+                            <Divider />
+
+                            <ListItem button selected={selectedIndex === 4} onClick={() => handleSwitchTab(4, '/settings')}>
+                                <ListItemIcon>
+                                    <SettingstIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="Settings" />
+                            </ListItem>
+
+                            <ListItem button selected={selectedIndex === 5} onClick={() => handleSwitchTab(5, '/logout')}>
+                                <ListItemIcon>
+                                    <LogoutIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="Logout" />
+                            </ListItem>
+                        </List>
+                    </Drawer>
+                    <main className={classes.content}>
+                        <div className={classes.toolbar} />
+                        {children}
+
+
+                        {/*<div className={classes.toolbar} />
+                        <Typography paragraph>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+                            ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum
+                            facilisis leo vel. Risus at ultrices mi tempus imperdiet. Semper risus in hendrerit
+                            gravida rutrum quisque non tellus. Convallis convallis tellus id interdum velit laoreet id
+                            donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
+                            adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras.
+                            Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis
+                            imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget
+                            arcu dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem
+                            donec massa sapien faucibus et molestie ac.
+                        </Typography>
+                        <Typography paragraph>
+                            Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper eget nulla
+                            facilisi etiam dignissim diam. Pulvinar elementum integer enim neque volutpat ac
+                            tincidunt. Ornare suspendisse sed nisi lacus sed viverra tellus. Purus sit amet volutpat
+                            consequat mauris. Elementum eu facilisis sed odio morbi. Euismod lacinia at quis risus sed
+                            vulputate odio. Morbi tincidunt ornare massa eget egestas purus viverra accumsan in. In
+                            hendrerit gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem et
+                            tortor. Habitant morbi tristique senectus et. Adipiscing elit duis tristique sollicitudin
+                            nibh sit. Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra maecenas
+                            accumsan lacus vel facilisis. Nulla posuere sollicitudin aliquam ultrices sagittis orci a.
+                        </Typography>*/}
+                    </main>
                 </div>
-                <Divider />
-                <List>
-                    <ListItem button selected={selectedIndex === 0} onClick={() => handleSwitchTab('Dashboard', 0, '/dashboard')}>
-                        <ListItemIcon>
-                            <DashboardIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Dashboard" />
-                    </ListItem>
-
-                    <Divider />
-
-                    <ListItem button selected={selectedIndex === 1} onClick={() => handleSwitchTab('Trigger', 1, '/trigger')}>
-                        <ListItemIcon>
-                            <TriggerIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Trigger" />
-                    </ListItem>
-
-                    <ListItem button selected={selectedIndex === 2} onClick={() => handleSwitchTab('Messages', 2, '/messages')}>
-                        <ListItemIcon>
-                            <MessagesIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Messages" />
-                    </ListItem>
-
-                    <ListItem button selected={selectedIndex === 3} onClick={() => handleSwitchTab('Recipients', 3, '/recipients')}>
-                        <ListItemIcon>
-                            <PeopleIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Recipients" />
-                    </ListItem>
-
-                    <Divider />
-
-                    <ListItem button selected={selectedIndex === 4} onClick={() => handleSwitchTab('Settings', 4, '/settings')}>
-                        <ListItemIcon>
-                            <SettingstIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Settings" />
-                    </ListItem>
-
-                    <ListItem button selected={selectedIndex === 5} onClick={() => handleSwitchTab('Logout', 5, '/logout')}>
-                        <ListItemIcon>
-                            <LogoutIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Logout" />
-                    </ListItem>
-                </List>
-            </Drawer>
-            <main className={classes.content}>
-                <div className={classes.toolbar} />
-                {children}
-
-
-                {/*<div className={classes.toolbar} />
-                <Typography paragraph>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-                    ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum
-                    facilisis leo vel. Risus at ultrices mi tempus imperdiet. Semper risus in hendrerit
-                    gravida rutrum quisque non tellus. Convallis convallis tellus id interdum velit laoreet id
-                    donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-                    adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras.
-                    Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis
-                    imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget
-                    arcu dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem
-                    donec massa sapien faucibus et molestie ac.
-                </Typography>
-                <Typography paragraph>
-                    Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper eget nulla
-                    facilisi etiam dignissim diam. Pulvinar elementum integer enim neque volutpat ac
-                    tincidunt. Ornare suspendisse sed nisi lacus sed viverra tellus. Purus sit amet volutpat
-                    consequat mauris. Elementum eu facilisis sed odio morbi. Euismod lacinia at quis risus sed
-                    vulputate odio. Morbi tincidunt ornare massa eget egestas purus viverra accumsan in. In
-                    hendrerit gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem et
-                    tortor. Habitant morbi tristique senectus et. Adipiscing elit duis tristique sollicitudin
-                    nibh sit. Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra maecenas
-                    accumsan lacus vel facilisis. Nulla posuere sollicitudin aliquam ultrices sagittis orci a.
-                </Typography>*/}
-            </main>
+            </ThemeProvider>
         </div>
     );
 }
