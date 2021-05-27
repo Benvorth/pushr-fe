@@ -9,6 +9,7 @@ import Messages from './pages/Messages';
 import Recipients from './pages/Recipients';
 import Settings from './pushService/pushServicePanel';
 import Logout from './pages/Logout';
+import Token from './pages/Token';
 
 function App() {
 
@@ -22,8 +23,7 @@ function App() {
         ));
 
     const [selectedIndex, setSelectedIndex] = useState(0);
-
-
+    const [token, setToken] = useState(null);
 
     return (
         <Router>
@@ -40,10 +40,16 @@ function App() {
                            selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
                     />
                 )}/>
+                <Route path='/token/:token' render={(props) => (
+                    <Token {...props}
+                           setToken={setToken}
+                    />
+                )}/>
                 <Route path='/dashboard' render={(props) => (
                     <Dashboard {...props}
                                userContext={userContext} title={'Dashboard'}
                                selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
+                               token={token} setToken={setToken}
                     />
                 )}/>
                 <Route path='/trigger' render={(props) => (

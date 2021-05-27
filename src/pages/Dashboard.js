@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 
 import PushrNavigation from './PushrNavigation';
 
-export default function Dashboard({userContext, title, selectedIndex, setSelectedIndex}) {
+export default function Dashboard({userContext, title, selectedIndex, setSelectedIndex, token, setToken}) {
 
     let history = useHistory();
 
@@ -23,6 +23,11 @@ export default function Dashboard({userContext, title, selectedIndex, setSelecte
                     <div className="col-sm-3"> Welcome : {userContext.userName}</div>
                     <div className="col-sm-9"></div>
                 </div>
+                {token ?
+                <div className="row">
+                    <div className="col-sm-3"> Token : {token}</div>
+                </div>
+                    : null}
             </div>
         </PushrNavigation>
     )
