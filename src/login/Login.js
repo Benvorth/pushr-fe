@@ -7,7 +7,7 @@ import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
 
-import pushRlogo from '../img/pushr-dots.png';
+import pushRlogo from '../img/pushr-dots.svg';
 import GoogleLogin from 'react-google-login';
 import FacebookLogin from 'react-facebook-login';
 import InstagramLogin from "react-instagram-login";

@@ -18,7 +18,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import { useHistory } from "react-router-dom";
 import Badge from '@material-ui/core/Badge';
-import pushRlogo from '../img/pushr-dots.png';
+import pushRlogo from '../img/pushr-dots.svg';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import TriggerIcon from '@material-ui/icons/Error';
 import MessagesIcon from '@material-ui/icons/Textsms';
