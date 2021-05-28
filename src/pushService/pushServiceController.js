@@ -6,25 +6,23 @@ let publicSigningKey = "";
 
 async function getPushServerPublicKey() {
     // http.get('/api/publicSigningKey')
-    http.get('/api/publicSigningKey', false)
+    const result = await http.get('/api/publicSigningKey', false)
         .then(response => response.arrayBuffer())
         .then(key => {
             publicSigningKey = key;
             console.info('received public signing key from server: \'' + btoa(publicSigningKey) + '\'');
+            return true;
         })
         .finally(() => console.info('Public Key fetched from the server: \''+ btoa(publicSigningKey) + '\''));
-
+    return result;
 }
 
 async function checkSubscription() {
 
     if ('serviceWorker' in navigator) {
-
-
         const registration = await navigator.serviceWorker.ready;
         const subscription = await registration.pushManager.getSubscription();
         if (subscription) {
-
             const subscribed = await http.post('/api/isSubscribed',
                 {endpoint: subscription.endpoint}
             );
@@ -36,13 +34,11 @@ async function checkSubscription() {
                 }
             });
             const subscribed = await response.json();*/
-            debugger;
             return subscribed;
         }
     } else {
         console.error('serviceWorkers not supported');
     }
-
     return false;
 }
 
@@ -88,8 +84,8 @@ function sendNotification() {
 /**
  *
  */
-function registerServiceWorker() {
-    return navigator.serviceWorker.register("/sw-pushService.js");
+async function registerServiceWorker() {
+    return await navigator.serviceWorker.register("/sw-pushService.js");
 }
 
 /**
@@ -101,7 +97,7 @@ async function createNotificationSubscription() {
     //wait for service worker installation to be ready
     const serviceWorker = await navigator.serviceWorker.ready;
     // subscribe and return the subscription
-    console.log('publicSigningKey ' + btoa(publicSigningKey));
+    // console.log('publicSigningKey ' + btoa(publicSigningKey));
     return await serviceWorker.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: publicSigningKey

@@ -14,4 +14,4 @@ ReactDOM.render(
     document.getElementById('root')
 );
 
-serviceWorkerCacheInit.init();
+// serviceWorkerCacheInit.init();

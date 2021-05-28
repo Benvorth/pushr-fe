@@ -76,6 +76,8 @@ export default function Dashboard(
         // history.push('/trigger');
     }
 
+    token = 'F0-34-AC-03';
+
     return (
         <PushrNavigation userContext={userContext} title={title} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}>
             <div className="container">

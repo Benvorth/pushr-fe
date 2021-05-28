@@ -34,39 +34,38 @@ export default function usePushNotifications({userSubscription, setUserSubscript
             setLoading(true);
             setError(false);
             registerServiceWorker().then(() => {
-                setInfo({message: 'Push Notification service worker registered'});
-                getPushServerPublicKey().then(() => {
-                    setInfo({message: 'Push Notification server public key fetched'});
 
-                    onClickAskUserPermission().then(async () => {
-                        if (userConsent) {
-                            const getExixtingSubscription = async () => {
-                                const alreadySubscribed = await checkSubscription();
+                // listen for data from push service Worker
+                navigator.serviceWorker.addEventListener(
+                    'message', event => setLastMessage(event.data.msg)
+                );
+
+                console.log('+Push Notification service worker registered');
+                getPushServerPublicKey().then((success) => {
+                    console.log('+Push Notification server public key fetched successful: ' + success);
+                    onClickAskUserPermission().then((usersConsent) => {
+                        console.log('+User Consent: ' + usersConsent);
+                        if (usersConsent) {
+                            checkSubscription().then((alreadySubscribed) => {
+                                console.log('+Already subscribed: ' + alreadySubscribed);
                                 if (alreadySubscribed) {
-                                    console.log('Push Notification already subscribed');
                                     setInfo({message: "Push Notification already subscribed"});
-                                    const existingSubscription = await getUserSubscription();
+                                    const existingSubscription = getUserSubscription();
                                     setUserSubscription(existingSubscription);
                                     setLoading(false);
                                 } else {
-                                    console.log('Push Notification not subscribed yet');
                                     setInfo({message: 'Push Notification  not subscribed yet'});
-                                    await onClickSubscribeToPushNotification();
-                                    await onClickSendSubscriptionToPushServer();
-                                    setLoading(false);
+                                    onClickSubscribeToPushNotification().then((subscription) => {
+                                        console.log('+Auto-subscribed to push notification successful: ' + success);
+                                        onClickSendSubscriptionToPushServer(subscription).then((success) => {
+                                            console.log('+Send subscription to PUSHr server successful: ' + success);
+                                            setLoading(false);
+                                        });
+                                    });
                                 }
-                                setLoading(false);
-                            };
-                            await getExixtingSubscription();
-                            setLoading(false);
+                            });
                         }
                     });
-                    // listen for data from push service Worker
-                    navigator.serviceWorker.addEventListener(
-                        'message', event => setLastMessage(event.data.msg)
-                    );
-
-                    setLoading(false);
                 });
             });
         }
@@ -106,20 +105,23 @@ export default function usePushNotifications({userSubscription, setUserSubscript
     const onClickAskUserPermission = async () => {
         setLoading(true);
         setError(false);
-        askUserPermission().then(consent => {
-            setSuserConsent(consent);
-            if (consent !== 'granted') {
-                setInfo({message: 'Push Notification permission NOT grated'});
+        const theConset = await askUserPermission().then(theConsent => {
+            setSuserConsent(theConsent);
+            if (theConsent !== 'granted') {
+                console.log('Push NotificatgetPushServerPublicKeyion permission NOT grated');
+                setInfo({message: 'Push NotificatgetPushServerPublicKeyion permission NOT grated'});
                 setError({
                     name: 'Consent denied',
                     message: 'You denied the consent to receive notifications',
                     code: 0
                 });
             } else {
+                console.log('Push Notification permission granted');
                 setInfo({message: 'Push Notification permission grated'});
             }
-            setLoading(false);
+            return theConsent;
         });
+        return theConset;
     };
 
     /**
@@ -129,40 +131,41 @@ export default function usePushNotifications({userSubscription, setUserSubscript
     const onClickSubscribeToPushNotification = async () => {
         setLoading(true);
         setError(false);
-        createNotificationSubscription()
+        const subscription = await createNotificationSubscription()
             .then(subscription => {
                 console.info('notification subscription created. Endpoint: \'' + subscription.endpoint + '\'');
                 setInfo('Subscribed to PushMsg Server');
                 setUserSubscription(subscription);
-                setLoading(false);
+                return subscription
             })
             .catch(err => {
                 console.error('Couldn\'t create the notification subscription', err, 'name:', err.name, 'message:', err.message, 'code:', err.code);
                 setError(err);
-                setLoading(false);
+                return null;
             });
+        return subscription;
     };
 
     /**
      * define a click handler that sends the push susbcribtion to the push server.
      * Once the subscription ics created on the server, it saves the id using the hook setPushServerSubscriptionId
      */
-    const onClickSendSubscriptionToPushServer = async () => {
-        setLoading(true);
-        setError(false);
-        await http
-            .post("/api/subscribe", userSubscription)
+    const onClickSendSubscriptionToPushServer = async (theSubscription) => {
+        debugger;
+        const result = await http
+            // .post("/api/subscribe", userSubscription)
+            .post("/api/subscribe", theSubscription)
             .then(response => {
                 console.log('Subscribed successfully. ID: ' + response.subscriptionId);
                 setInfo('Subscribed successfully. ID: ' + response.subscriptionId);
                 setPushServerSubscriptionId(response.subscriptionId);
-                setLoading(false);
+                return true;
             })
             .catch(err => {
-                console.info('Could not send Subscription info to the server');
-                setLoading(false);
-                setError(err);
+                console.info('Could not send Subscription info to the server: ' + err);
+                return false;
             });
+        return result;
     };
 
     /**
@@ -197,11 +200,11 @@ export default function usePushNotifications({userSubscription, setUserSubscript
             setInfo('Token F0-34-AC-03 claimed successfully.');
             setLoading(false);
         })
-        .catch(err => {
-            console.info('Could not claim token F0-34-AC-03');
-            setLoading(false);
-            setError(err);
-        });
+            .catch(err => {
+                console.info('Could not claim token F0-34-AC-03');
+                setLoading(false);
+                setError(err);
+            });
     }
 
     /**
