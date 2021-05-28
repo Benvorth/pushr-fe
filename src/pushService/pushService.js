@@ -192,9 +192,8 @@ export default function usePushNotifications({userSubscription, setUserSubscript
             '/api/claimToken?token=' + encodeURIComponent('F0-34-AC-03') +
             '&subscriptionEndpoint=' + existingSubscription.endpoint
         ).then(response => {
-            console.log('Token F0-34-AC-03 claimed successfully.');
+            console.log('Token F0-34-AC-03 claimed successfully: ' + response);
             setInfo('Token F0-34-AC-03 claimed successfully.');
-            setPushServerSubscriptionId(response.result);
             setLoading(false);
         })
         .catch(err => {
