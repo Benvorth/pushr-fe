@@ -25,7 +25,7 @@ async function checkSubscription() {
         const subscription = await registration.pushManager.getSubscription();
         if (subscription) {
 
-            const subscribed = http.post('/api/isSubscribed',
+            const subscribed = await http.post('/api/isSubscribed',
                 {endpoint: subscription.endpoint}
             );
             /*const response = await fetch("/api/isSubscribed", {
@@ -36,6 +36,7 @@ async function checkSubscription() {
                 }
             });
             const subscribed = await response.json();*/
+            debugger;
             return subscribed;
         }
     } else {

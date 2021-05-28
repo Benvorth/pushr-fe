@@ -24,6 +24,7 @@ function App() {
 
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [token, setToken] = useState(null);
+    const [userSubscription, setUserSubscription] = useState(null);
 
     return (
         <Router>
@@ -50,6 +51,7 @@ function App() {
                                userContext={userContext} title={'Dashboard'}
                                selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
                                token={token} setToken={setToken}
+                               userSubscription={userSubscription} setUserSubscription={setUserSubscription}
                     />
                 )}/>
                 <Route path='/trigger' render={(props) => (

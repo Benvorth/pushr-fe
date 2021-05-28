@@ -16,12 +16,11 @@ import {
 
 const pushNotificationSupported = isPushNotificationSupported();
 
-export default function usePushNotifications() {
+export default function usePushNotifications({userSubscription, setUserSubscription}) {
 
     //to manage the user consent: Notification.permission is a JavaScript native function
     // that return the current state of the permission. We initialize the userConsent with that value
     const [userConsent, setSuserConsent] = useState(Notification.permission);
-    const [userSubscription, setUserSubscription] = useState(null);
     const [pushServerSubscriptionId, setPushServerSubscriptionId] = useState();
     const [error, setError] = useState(null);
     const [info, setInfo] = useState(null);
@@ -30,7 +29,8 @@ export default function usePushNotifications() {
 
     //this effect runs only the first render
     useEffect(() => {
-        if (pushNotificationSupported) {
+        if (pushNotificationSupported && !userSubscription) {
+
             setLoading(true);
             setError(false);
             registerServiceWorker().then(() => {
@@ -38,6 +38,28 @@ export default function usePushNotifications() {
                 getPushServerPublicKey().then(() => {
                     setInfo({message: 'Push Notification server public key fetched'});
 
+                    onClickAskUserPermission().then(async () => {
+                        if (userConsent) {
+                            const getExixtingSubscription = async () => {
+                                const alreadySubscribed = await checkSubscription();
+                                if (alreadySubscribed) {
+                                    console.log('Push Notification already subscribed');
+                                    setInfo({message: "Push Notification already subscribed"});
+                                    const existingSubscription = await getUserSubscription();
+                                    setUserSubscription(existingSubscription);
+                                    setLoading(false);
+                                } else {
+                                    console.log('Push Notification not subscribed yet');
+                                    setInfo({message: 'Push Notification  not subscribed yet'});
+                                    await onClickSubscribeToPushNotification();
+                                    setLoading(false);
+                                }
+                                setLoading(false);
+                            };
+                            await getExixtingSubscription();
+                            setLoading(false);
+                        }
+                    });
                     // listen for data from push service Worker
                     navigator.serviceWorker.addEventListener(
                         'message', event => setLastMessage(event.data.msg)
@@ -50,6 +72,7 @@ export default function usePushNotifications() {
     }, []);
 
 
+    /*
     // Retrieve if there is any push notification subscription for the registered
     // service worker
     // this effect runs only in the first render
@@ -71,6 +94,7 @@ export default function usePushNotifications() {
         };
         getExixtingSubscription();
     }, []);
+     */
 
 
     /**
@@ -78,7 +102,7 @@ export default function usePushNotifications() {
      * it uses the setSuserConsent state, to set the consent of the user
      * If the user denies the consent, an error is created with the setError hook
      */
-    const onClickAskUserPermission = () => {
+    const onClickAskUserPermission = async () => {
         setLoading(true);
         setError(false);
         askUserPermission().then(consent => {
@@ -101,7 +125,7 @@ export default function usePushNotifications() {
      * define a click handler that creates a push notification subscription.
      * Once the subscription is created, it uses the setUserSubscription hook
      */
-    const onClickSubscribeToPushNotification = () => {
+    const onClickSubscribeToPushNotification = async () => {
         setLoading(true);
         setError(false);
         createNotificationSubscription()

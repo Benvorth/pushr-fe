@@ -1,10 +1,8 @@
 import React from 'react';
-import {useState} from "react";
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import pushService from "./pushService";
 import PushrNavigation from '../pages/PushrNavigation';
-import Recipients from '../pages/Recipients';
 
 
 const Loading = ({ loading }) => (loading ? <div className="app-loader">Please wait, we are loading something...</div> : null);

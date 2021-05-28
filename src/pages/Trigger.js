@@ -2,8 +2,11 @@ import React from 'react'
 import { useHistory } from "react-router-dom";
 
 import PushrNavigation from './PushrNavigation';
+import {
+    askUserPermission, isPushNotificationSupported
+} from "../pushService/pushServiceController";
 
-export default function Trigger({userContext, title, selectedIndex, setSelectedIndex}) {
+export default function Trigger({userContext, title, selectedIndex, setSelectedIndex, token, setToken}) {
 
     let history = useHistory();
 
