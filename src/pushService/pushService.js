@@ -162,9 +162,11 @@ export default function usePushNotifications() {
     const onClickClaimToken = async () => {
         setLoading(true);
         setError(false);
+        const existingSubscription = await getUserSubscription();
+
         await http.post(
-            '/api/claimToken?token=' + encodeURIComponent('F0-34-AC-03'),
-            userSubscription
+            '/api/claimToken?token=' + encodeURIComponent('F0-34-AC-03') +
+            '&subscriptionEndpoint=' + existingSubscription.endpoint
         ).then(response => {
             console.log('Token F0-34-AC-03 claimed successfully.');
             setInfo('Token F0-34-AC-03 claimed successfully.');
