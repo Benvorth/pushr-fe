@@ -52,6 +52,7 @@ export default function usePushNotifications({userSubscription, setUserSubscript
                                     console.log('Push Notification not subscribed yet');
                                     setInfo({message: 'Push Notification  not subscribed yet'});
                                     await onClickSubscribeToPushNotification();
+                                    await onClickSendSubscriptionToPushServer();
                                     setLoading(false);
                                 }
                                 setLoading(false);
@@ -192,7 +193,7 @@ export default function usePushNotifications({userSubscription, setUserSubscript
             '/api/claimToken?token=' + encodeURIComponent('F0-34-AC-03') +
             '&subscriptionEndpoint=' + existingSubscription.endpoint
         ).then(response => {
-            console.log('Token F0-34-AC-03 claimed successfully: ' + response);
+            console.log('Token F0-34-AC-03 claimed successfully: ' + JSON.stringify(response));
             setInfo('Token F0-34-AC-03 claimed successfully.');
             setLoading(false);
         })
