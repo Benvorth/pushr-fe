@@ -89,11 +89,11 @@ async function receivePushNotification(event) {
 
         const options = {
             body: body,
-            icon: '/logo192.png',
+            icon: 'img/pushr-72.png',
             vibrate: [200, 100, 200],
-            image: 'https://via.placeholder.com/128/ff0000',
-            badge: "https://spyna.it/icons/favicon.ico",
-            actions: [{action: "Detail", title: "View", icon: "https://via.placeholder.com/128/ff0000"}]
+            // image: 'https://via.placeholder.com/128/ff0000',
+            badge: 'img/pushr-16.png',
+            actions: [{action: "Detail", title: "View", icon: 'img/pushr-72.png'}]
         };
         await self.registration.showNotification(title, options);
 

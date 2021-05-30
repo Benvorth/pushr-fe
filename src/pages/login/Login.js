@@ -9,6 +9,7 @@ import Paper from '@material-ui/core/Paper';
 
 import PushrNavigation from '../PushrNavigation';
 import pushRlogo from '../../img/pushr-dots.svg';
+import http from '../../util/http';
 import GoogleLogin from 'react-google-login';
 import FacebookLogin from 'react-facebook-login';
 import InstagramLogin from "react-instagram-login";
@@ -54,7 +55,7 @@ export default function Login({setUserContext, userContext, title, selectedIndex
     const classes = useStyles();
     let history = useHistory();
 
-    const responseGoogle = (googleUser) => {
+    const responseGoogle = async (googleUser) => {
 
         let profile = googleUser.getBasicProfile();
         debugger;
@@ -66,6 +67,9 @@ export default function Login({setUserContext, userContext, title, selectedIndex
         // user token for backend:
         const id_token = googleUser.getAuthResponse().id_token;
         console.log('ID token: ' + id_token);
+
+        const res = await http.put('/api/user/google', id_token);
+        debugger;
 
         setUserContext({
             userIdToken: id_token,

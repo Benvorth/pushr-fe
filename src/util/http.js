@@ -22,6 +22,26 @@ function post(path, body, convertResponseToJSON = true) {
         });
 }
 
+function put(path, body, convertResponseToJSON = true) {
+    return fetch(`${host}${path}`, {
+        credentials: "omit",
+        headers: { "content-type": "application/json;charset=UTF-8", "sec-fetch-mode": "cors" },
+        body: JSON.stringify(body),
+        method: "PUT",
+        mode: "cors"
+    })
+        .then((response) => {
+            if (!!convertResponseToJSON) {
+                return response.json();
+            } else {
+                return response;
+            }
+        })
+        .then((data) => {
+            return data;
+        });
+}
+
 function get(path, convertResponseToJSON = true) {
     return fetch(`${host}${path}`, {
         credentials: "omit",
@@ -43,6 +63,7 @@ function get(path, convertResponseToJSON = true) {
 
 const http = {
     post: post,
+    put: put,
     get: get
 };
 
