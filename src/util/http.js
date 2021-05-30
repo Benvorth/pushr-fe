@@ -22,11 +22,11 @@ function post(path, body, convertResponseToJSON = true) {
         });
 }
 
-function put(path, body, convertResponseToJSON = true) {
+function put(path, body, convertResponseToJSON = true, contentType = "text/plain") {
     return fetch(`${host}${path}`, {
         credentials: "omit",
-        headers: { "content-type": "application/json;charset=UTF-8", "sec-fetch-mode": "cors" },
-        body: JSON.stringify(body),
+        headers: { "content-type": contentType, "sec-fetch-mode": "cors" },
+        body: body,
         method: "PUT",
         mode: "cors"
     })
