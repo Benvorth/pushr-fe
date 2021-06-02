@@ -12,7 +12,7 @@ import Button from '@material-ui/core/Button';
 
 import PushrNavigation from '../PushrNavigation';
 import pushRlogo from '../../img/pushr-dots.svg';
-import iconGoogle from '../../img/login/google.svg'
+
 import http from '../../util/http';
 import GoogleLogin from 'react-google-login';
 import FacebookLogin from 'react-facebook-login';
