@@ -65,7 +65,7 @@ export default function Dashboard(
         info, setInfo,
         lastMessage, setLastMessage,
         onClickClaimToken
-    } = pushService({userSubscription, setUserSubscription});
+    } = pushService({userSubscription, setUserSubscription, userContext});
 
     if (!userContext || !('userImgUrl' in userContext)) {
         history.push('/login');

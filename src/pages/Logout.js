@@ -27,7 +27,7 @@ export default function Logout({userContext, setUserContext, title, selectedInde
                 </div>
                 <div className="row">
                     <div className="col-sm-9">
-                        {(process.env.NODE_ENV === "production" &&
+                        {(/*process.env.NODE_ENV === "production" &&*/
                             userContext.loginProvider === 'Google' ?
                             <GoogleLogout
                                 clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"

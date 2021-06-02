@@ -2,10 +2,10 @@ const host = process.env.NODE_ENV === "production"
     ? "https://pushr.info"
     : "http://localhost:8081";
 
-function post(path, body, convertResponseToJSON = true) {
+function post(path, body, accessToken, convertResponseToJSON = true) {
     return fetch(`${host}${path}`, {
         credentials: "omit",
-        headers: { "content-type": "application/json;charset=UTF-8", "sec-fetch-mode": "cors" },
+        headers: { "content-type": "application/json;charset=UTF-8", "sec-fetch-mode": "cors", "x-pushr-access-token": accessToken },
         body: JSON.stringify(body),
         method: "POST",
         mode: "cors"
@@ -22,10 +22,10 @@ function post(path, body, convertResponseToJSON = true) {
         });
 }
 
-function put(path, body, convertResponseToJSON = true, contentType = "text/plain") {
+function put(path, body, accessToken, convertResponseToJSON = true, contentType = "text/plain") {
     return fetch(`${host}${path}`, {
         credentials: "omit",
-        headers: { "content-type": contentType, "sec-fetch-mode": "cors" },
+        headers: { "content-type": contentType, "sec-fetch-mode": "cors", "x-pushr-access-token": accessToken },
         body: body,
         method: "PUT",
         mode: "cors"
@@ -42,10 +42,10 @@ function put(path, body, convertResponseToJSON = true, contentType = "text/plain
         });
 }
 
-function get(path, convertResponseToJSON = true) {
+function get(path, accessToken, convertResponseToJSON = true) {
     return fetch(`${host}${path}`, {
         credentials: "omit",
-        headers: { "content-type": "application/json;charset=UTF-8", "sec-fetch-mode": "cors" },
+        headers: { "content-type": "application/json;charset=UTF-8", "sec-fetch-mode": "cors", "x-pushr-access-token": accessToken },
         method: "GET",
         mode: "cors"
     })

@@ -4,9 +4,9 @@ import http from "../util/http";
 
 let publicSigningKey = "";
 
-async function getPushServerPublicKey() {
+async function getPushServerPublicKey(accessToken) {
     // http.get('/api/publicSigningKey')
-    const result = await http.get('/api/publicSigningKey', false)
+    const result = await http.get('/api/publicSigningKey', accessToken, false )
         .then(response => response.arrayBuffer())
         .then(key => {
             publicSigningKey = key;
@@ -17,14 +17,15 @@ async function getPushServerPublicKey() {
     return result;
 }
 
-async function checkSubscription() {
+async function checkSubscription(accessToken) {
 
     if ('serviceWorker' in navigator) {
         const registration = await navigator.serviceWorker.ready;
         const subscription = await registration.pushManager.getSubscription();
         if (subscription) {
-            const subscribed = await http.post('/api/isSubscribed',
-                {endpoint: subscription.endpoint}
+            const result = await http.post('/api/isSubscribed',
+                {endpoint: subscription.endpoint},
+                accessToken
             );
             /*const response = await fetch("/api/isSubscribed", {
                 method: 'POST',
@@ -34,7 +35,11 @@ async function checkSubscription() {
                 }
             });
             const subscribed = await response.json();*/
-            return subscribed;
+            if (result.status === 'success') {
+                return result.msg; // true or false
+            }
+            console.error("failed to check subscription");
+            return false;
         }
     } else {
         console.error('serviceWorkers not supported');

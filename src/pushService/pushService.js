@@ -16,7 +16,7 @@ import {
 
 const pushNotificationSupported = isPushNotificationSupported();
 
-export default function usePushNotifications({userSubscription, setUserSubscription}) {
+export default function usePushNotifications({userSubscription, setUserSubscription, userContext}) {
 
     //to manage the user consent: Notification.permission is a JavaScript native function
     // that return the current state of the permission. We initialize the userConsent with that value
@@ -27,7 +27,7 @@ export default function usePushNotifications({userSubscription, setUserSubscript
     const [lastMessage, setLastMessage] = useState(null);
     const [loading, setLoading] = useState(true); //to manage async actions
 
-    //this effect runs only the first render
+    // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
         if (pushNotificationSupported && !userSubscription) {
 
@@ -41,12 +41,14 @@ export default function usePushNotifications({userSubscription, setUserSubscript
                 );
 
                 console.log('+Push Notification service worker registered');
-                getPushServerPublicKey().then((success) => {
+                getPushServerPublicKey(userContext.accessToken)
+                    .then((success) => {
                     console.log('+Push Notification server public key fetched successful: ' + success);
                     onClickAskUserPermission().then((usersConsent) => {
                         console.log('+User Consent: ' + usersConsent);
                         if (usersConsent) {
-                            checkSubscription().then((alreadySubscribed) => {
+                            checkSubscription(userContext.accessToken)
+                                .then((alreadySubscribed) => {
                                 console.log('+Already subscribed: ' + alreadySubscribed);
                                 if (alreadySubscribed) {
                                     setInfo({message: "Push Notification already subscribed"});
@@ -153,7 +155,7 @@ export default function usePushNotifications({userSubscription, setUserSubscript
     const onClickSendSubscriptionToPushServer = async (theSubscription) => {
         const result = await http
             // .post("/api/subscribe", userSubscription)
-            .post("/api/subscribe", theSubscription)
+            .post("/api/subscribe", theSubscription, userContext.accessToken)
             .then(response => {
                 console.log('Subscribed successfully. ID: ' + response.subscriptionId);
                 setInfo('Subscribed successfully. ID: ' + response.subscriptionId);
@@ -178,7 +180,8 @@ export default function usePushNotifications({userSubscription, setUserSubscript
 
         await http.post(
             `/api/sendTextNotification?subscriptionEndpoint=${existingSubscription.endpoint}`,
-            'Hy there! From Benni'
+            'Hy there! From Benni',
+            userContext.accessToken
         ).catch(err => {
             setLoading(false);
             setError(err);
@@ -193,7 +196,9 @@ export default function usePushNotifications({userSubscription, setUserSubscript
 
         await http.post(
             '/api/claimToken?token=' + encodeURIComponent('F0-34-AC-03') +
-            '&subscriptionEndpoint=' + existingSubscription.endpoint
+            '&subscriptionEndpoint=' + existingSubscription.endpoint,
+            '',
+            userContext.accessToken
         ).then(response => {
             console.log('Token F0-34-AC-03 claimed successfully: ' + JSON.stringify(response));
             setInfo('Token F0-34-AC-03 claimed successfully.');

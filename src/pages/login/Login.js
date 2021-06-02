@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Link from '@material-ui/core/Link';
 import Box from '@material-ui/core/Box';
@@ -6,14 +6,19 @@ import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
+import SvgIcon  from "@material-ui/core/SvgIcon"
+
+import Button from '@material-ui/core/Button';
 
 import PushrNavigation from '../PushrNavigation';
 import pushRlogo from '../../img/pushr-dots.svg';
+import iconGoogle from '../../img/login/google.svg'
 import http from '../../util/http';
 import GoogleLogin from 'react-google-login';
 import FacebookLogin from 'react-facebook-login';
 import InstagramLogin from "react-instagram-login";
 import GitHubLogin from 'github-login';
+
 
 import {useHistory} from "react-router-dom";
 
@@ -48,7 +53,13 @@ const useStyles = makeStyles((theme) => ({
     },
     submit: {
         margin: theme.spacing(3, 0, 2)
-    }
+    },
+    button: {
+        margin: theme.spacing(1),
+        textTransform: 'none',
+        width: '220px',
+        alignItems: 'center',
+    },
 }));
 
 export default function Login({setUserContext, userContext, title, selectedIndex, setSelectedIndex}) {
@@ -58,7 +69,7 @@ export default function Login({setUserContext, userContext, title, selectedIndex
     const responseGoogle = async (googleUser) => {
 
         let profile = googleUser.getBasicProfile();
-        debugger;
+
         console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
         console.log('Name: ' + profile.getName());
         console.log('Image URL: ' + profile.getImageUrl());
@@ -69,10 +80,12 @@ export default function Login({setUserContext, userContext, title, selectedIndex
         console.log('ID token: ' + id_token);
 
         const res = await http.put('/api/user/google', id_token);
-        debugger;
 
         setUserContext({
-            userIdToken: id_token,
+            accessToken: res.token,
+            accessTokenCreated: res.created,
+            accessTokenExpires: res.expires,
+
             userName: profile.getName(),
             userImgUrl: profile.getImageUrl(),
             loginProvider: 'Google'
@@ -112,9 +125,36 @@ export default function Login({setUserContext, userContext, title, selectedIndex
         return;
     }
 
-    if (!!userContext && 'userImgUrl' in userContext) {
-        history.push('/dashboard');
-    }
+    // Similar to componentDidMount and componentDidUpdate:
+    useEffect(() => {
+        if (!!userContext && 'userImgUrl' in userContext) {
+            history.push('/dashboard');
+        }
+    });
+
+    const googleSVGIcon = (
+        <SvgIcon>
+            <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg"><g fill="#000" fill-rule="evenodd"><path d="M9 3.48c1.69 0 2.83.73 3.48 1.34l2.54-2.48C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l2.91 2.26C4.6 5.05 6.62 3.48 9 3.48z" fill="#EA4335"></path><path d="M17.64 9.2c0-.74-.06-1.28-.19-1.84H9v3.34h4.96c-.1.83-.64 2.08-1.84 2.92l2.84 2.2c1.7-1.57 2.68-3.88 2.68-6.62z" fill="#4285F4"></path><path d="M3.88 10.78A5.54 5.54 0 0 1 3.58 9c0-.62.11-1.22.29-1.78L.96 4.96A9.008 9.008 0 0 0 0 9c0 1.45.35 2.82.96 4.04l2.92-2.26z" fill="#FBBC05"></path><path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.84-2.2c-.76.53-1.78.9-3.12.9-2.38 0-4.4-1.57-5.12-3.74L.97 13.04C2.45 15.98 5.48 18 9 18z" fill="#34A853"></path><path fill="none" d="M0 0h18v18H0z"></path></g></svg>
+        </SvgIcon>
+    );
+
+    const gitHubSVGIcon = (
+        <SvgIcon>
+            <svg aria-hidden="true" className="svg-icon iconGitHub" width="18" height="18" viewBox="0 0 18 18"><path d="M9 1a8 8 0 00-2.53 15.59c.4.07.55-.17.55-.38l-.01-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.42 7.42 0 014 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48l-.01 2.2c0 .21.15.46.55.38A8.01 8.01 0 009 1z" fill="#010101"></path></svg>
+        </SvgIcon>
+    );
+
+    const facebookSVGIcon = (
+        <SvgIcon>
+            <svg aria-hidden="true" className="svg-icon iconFacebook" width="18" height="18" viewBox="0 0 18 18"><path d="M3 1a2 2 0 00-2 2v12c0 1.1.9 2 2 2h12a2 2 0 002-2V3a2 2 0 00-2-2H3zm6.55 16v-6.2H7.46V8.4h2.09V6.61c0-2.07 1.26-3.2 3.1-3.2.88 0 1.64.07 1.87.1v2.16h-1.29c-1 0-1.19.48-1.19 1.18V8.4h2.39l-.31 2.42h-2.08V17h-2.5z" fill="#4167B2"></path></svg>
+        </SvgIcon>
+    );
+
+    const instagramSVGIcon = (
+        <SvgIcon>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><defs><linearGradient id="b"><stop offset="0" stop-color="#3771c8"/><stop stop-color="#3771c8" offset=".128"/><stop offset="1" stop-color="#60f" stop-opacity="0"/></linearGradient><linearGradient id="a"><stop offset="0" stop-color="#fd5"/><stop offset=".1" stop-color="#fd5"/><stop offset=".5" stop-color="#ff543e"/><stop offset="1" stop-color="#c837ab"/></linearGradient><radialGradient id="c" cx="158.429" cy="578.088" r="65" xlink:href="#a" gradientUnits="userSpaceOnUse" gradientTransform="matrix(0 -1.98198 1.8439 0 -1031.402 454.004)" fx="158.429" fy="578.088"/><radialGradient id="d" cx="147.694" cy="473.455" r="65" xlink:href="#b" gradientUnits="userSpaceOnUse" gradientTransform="matrix(.17394 .86872 -3.5818 .71718 1648.348 -458.493)" fx="147.694" fy="473.455"/></defs><path fill="url(#c)" d="M65.03 0C37.888 0 29.95.028 28.407.156c-5.57.463-9.036 1.34-12.812 3.22-2.91 1.445-5.205 3.12-7.47 5.468C4 13.126 1.5 18.394.595 24.656c-.44 3.04-.568 3.66-.594 19.188-.01 5.176 0 11.988 0 21.125 0 27.12.03 35.05.16 36.59.45 5.42 1.3 8.83 3.1 12.56 3.44 7.14 10.01 12.5 17.75 14.5 2.68.69 5.64 1.07 9.44 1.25 1.61.07 18.02.12 34.44.12 16.42 0 32.84-.02 34.41-.1 4.4-.207 6.955-.55 9.78-1.28 7.79-2.01 14.24-7.29 17.75-14.53 1.765-3.64 2.66-7.18 3.065-12.317.088-1.12.125-18.977.125-36.81 0-17.836-.04-35.66-.128-36.78-.41-5.22-1.305-8.73-3.127-12.44-1.495-3.037-3.155-5.305-5.565-7.624C116.9 4 111.64 1.5 105.372.596 102.335.157 101.73.027 86.19 0H65.03z" transform="translate(1.004 1)"/><path fill="url(#d)" d="M65.03 0C37.888 0 29.95.028 28.407.156c-5.57.463-9.036 1.34-12.812 3.22-2.91 1.445-5.205 3.12-7.47 5.468C4 13.126 1.5 18.394.595 24.656c-.44 3.04-.568 3.66-.594 19.188-.01 5.176 0 11.988 0 21.125 0 27.12.03 35.05.16 36.59.45 5.42 1.3 8.83 3.1 12.56 3.44 7.14 10.01 12.5 17.75 14.5 2.68.69 5.64 1.07 9.44 1.25 1.61.07 18.02.12 34.44.12 16.42 0 32.84-.02 34.41-.1 4.4-.207 6.955-.55 9.78-1.28 7.79-2.01 14.24-7.29 17.75-14.53 1.765-3.64 2.66-7.18 3.065-12.317.088-1.12.125-18.977.125-36.81 0-17.836-.04-35.66-.128-36.78-.41-5.22-1.305-8.73-3.127-12.44-1.495-3.037-3.155-5.305-5.565-7.624C116.9 4 111.64 1.5 105.372.596 102.335.157 101.73.027 86.19 0H65.03z" transform="translate(1.004 1)"/><path fill="#fff" d="M66.004 18c-13.036 0-14.672.057-19.792.29-5.11.234-8.598 1.043-11.65 2.23-3.157 1.226-5.835 2.866-8.503 5.535-2.67 2.668-4.31 5.346-5.54 8.502-1.19 3.053-2 6.542-2.23 11.65C18.06 51.327 18 52.964 18 66s.058 14.667.29 19.787c.235 5.11 1.044 8.598 2.23 11.65 1.227 3.157 2.867 5.835 5.536 8.503 2.667 2.67 5.345 4.314 8.5 5.54 3.054 1.187 6.543 1.996 11.652 2.23 5.12.233 6.755.29 19.79.29 13.037 0 14.668-.057 19.788-.29 5.11-.234 8.602-1.043 11.656-2.23 3.156-1.226 5.83-2.87 8.497-5.54 2.67-2.668 4.31-5.346 5.54-8.502 1.18-3.053 1.99-6.542 2.23-11.65.23-5.12.29-6.752.29-19.788 0-13.036-.06-14.672-.29-19.792-.24-5.11-1.05-8.598-2.23-11.65-1.23-3.157-2.87-5.835-5.54-8.503-2.67-2.67-5.34-4.31-8.5-5.535-3.06-1.187-6.55-1.996-11.66-2.23-5.12-.233-6.75-.29-19.79-.29zm-4.306 8.65c1.278-.002 2.704 0 4.306 0 12.816 0 14.335.046 19.396.276 4.68.214 7.22.996 8.912 1.653 2.24.87 3.837 1.91 5.516 3.59 1.68 1.68 2.72 3.28 3.592 5.52.657 1.69 1.44 4.23 1.653 8.91.23 5.06.28 6.58.28 19.39s-.05 14.33-.28 19.39c-.214 4.68-.996 7.22-1.653 8.91-.87 2.24-1.912 3.835-3.592 5.514-1.68 1.68-3.275 2.72-5.516 3.59-1.69.66-4.232 1.44-8.912 1.654-5.06.23-6.58.28-19.396.28-12.817 0-14.336-.05-19.396-.28-4.68-.216-7.22-.998-8.913-1.655-2.24-.87-3.84-1.91-5.52-3.59-1.68-1.68-2.72-3.276-3.592-5.517-.657-1.69-1.44-4.23-1.653-8.91-.23-5.06-.276-6.58-.276-19.398s.046-14.33.276-19.39c.214-4.68.996-7.22 1.653-8.912.87-2.24 1.912-3.84 3.592-5.52 1.68-1.68 3.28-2.72 5.52-3.592 1.692-.66 4.233-1.44 8.913-1.655 4.428-.2 6.144-.26 15.09-.27zm29.928 7.97c-3.18 0-5.76 2.577-5.76 5.758 0 3.18 2.58 5.76 5.76 5.76 3.18 0 5.76-2.58 5.76-5.76 0-3.18-2.58-5.76-5.76-5.76zm-25.622 6.73c-13.613 0-24.65 11.037-24.65 24.65 0 13.613 11.037 24.645 24.65 24.645C79.617 90.645 90.65 79.613 90.65 66S79.616 41.35 66.003 41.35zm0 8.65c8.836 0 16 7.163 16 16 0 8.836-7.164 16-16 16-8.837 0-16-7.164-16-16 0-8.837 7.163-16 16-16z"/></svg>
+        </SvgIcon>
+    );
 
     return (
         <PushrNavigation userContext={userContext} title={title} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}>
@@ -125,17 +165,17 @@ export default function Login({setUserContext, userContext, title, selectedIndex
                     <br/>
                     <img src={pushRlogo} width="70" alt="PUSHr - open notifications"/>
                     <br/>
-                    <Typography variant="h4">
+                    <Typography variant="h3">
                         PUSHr
                     </Typography>
-                    <Typography variant="h7">
+                    <Typography variant="h6">
                         open notifications
                     </Typography>
                     <br/>
                     <br/>
                     <form className={classes.form} noValidate>
 
-                        {(process.env.NODE_ENV === "production" ?
+                        {(true || process.env.NODE_ENV === "production" ?
                                 <>
                                     <GoogleLogin
                                         clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"
@@ -145,6 +185,78 @@ export default function Login({setUserContext, userContext, title, selectedIndex
                                         onFailure={responseGoogle}
                                         isSignedIn={true}
                                         fullWidth
+                                        render={renderProps => (
+                                            <Button
+                                                className={classes.button}
+                                                variant="outlined"
+                                                startIcon={googleSVGIcon}
+                                                onClick={onLoginClicked} disabled={renderProps.disabled}>
+                                                    Login using Google
+                                            </Button>
+                                        )}
+                                    />
+
+                                    <GoogleLogin
+                                        clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"
+                                        buttonText="Login with Google"
+                                        onClick={onLoginClicked}
+                                        onSuccess={responseGoogle}
+                                        onFailure={responseGoogle}
+                                        isSignedIn={true}
+                                        fullWidth
+                                        render={renderProps => (
+                                            <Button
+                                                className={classes.button}
+                                                variant="outlined"
+                                                startIcon={instagramSVGIcon}
+                                                onClick={onLoginClicked}
+                                                disabled
+                                            >
+                                                Login using Instagram
+                                            </Button>
+                                        )}
+                                    />
+
+                                    <GoogleLogin
+                                        clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"
+                                        buttonText="Login with Google"
+                                        onClick={onLoginClicked}
+                                        onSuccess={responseGoogle}
+                                        onFailure={responseGoogle}
+                                        isSignedIn={true}
+                                        fullWidth
+                                        render={renderProps => (
+                                            <Button
+                                                className={classes.button}
+                                                variant="outlined"
+                                                startIcon={facebookSVGIcon}
+                                                onClick={onLoginClicked}
+                                                disabled
+                                            >
+                                                Login using Facebook
+                                            </Button>
+                                        )}
+                                    />
+
+                                    <GoogleLogin
+                                        clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"
+                                        buttonText="Login with Google"
+                                        onClick={onLoginClicked}
+                                        onSuccess={responseGoogle}
+                                        onFailure={responseGoogle}
+                                        isSignedIn={true}
+                                        fullWidth
+                                        render={renderProps => (
+                                            <Button
+                                                className={classes.button}
+                                                variant="outlined"
+                                                startIcon={gitHubSVGIcon}
+                                                onClick={onLoginClicked}
+                                                disabled
+                                            >
+                                                     Login using GitHub
+                                            </Button>
+                                        )}
                                     />
                                     {/*
                             <FacebookLogin

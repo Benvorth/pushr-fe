@@ -14,7 +14,7 @@ import Token from './pages/Token';
 function App() {
 
     const [userContext, setUserContext] = useState(
-        (process.env.NODE_ENV === "production" ? null :
+        (true || process.env.NODE_ENV === "production" ? null :
                 {
                     userName: 'John Doea',
                     userImgUrl: 'https://i.pravatar.cc/96',
