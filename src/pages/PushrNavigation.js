@@ -27,6 +27,7 @@ import DashboardIcon from '@material-ui/icons/Dashboard';
 import TriggerIcon from '@material-ui/icons/Error';
 import MessagesIcon from '@material-ui/icons/Textsms';
 import PeopleIcon from '@material-ui/icons/People';
+import DevicesIcon from '@material-ui/icons/DevicesOther';
 import SettingstIcon from '@material-ui/icons/Settings';
 import LogoutIcon from '@material-ui/icons/ExitToApp';
 import Menu from '@material-ui/core/Menu';
@@ -235,16 +236,23 @@ export default function PushrNavigation({children, userContext, title, selectedI
                                 <ListItemText primary="Recipients" />
                             </ListItem>
 
+                            <ListItem button selected={selectedIndex === 4} onClick={() => handleSwitchTab(4, '/devices')}>
+                                <ListItemIcon>
+                                    <DevicesIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="Devices" />
+                            </ListItem>
+
                             <Divider />
 
-                            <ListItem button selected={selectedIndex === 4} onClick={() => handleSwitchTab(4, '/settings')}>
+                            <ListItem button selected={selectedIndex === 5} onClick={() => handleSwitchTab(5, '/settings')}>
                                 <ListItemIcon>
                                     <SettingstIcon />
                                 </ListItemIcon>
                                 <ListItemText primary="Settings" />
                             </ListItem>
 
-                            <ListItem button selected={selectedIndex === 5} onClick={() => handleSwitchTab(5, '/logout')}>
+                            <ListItem button selected={selectedIndex === 6} onClick={() => handleSwitchTab(6, '/logout')}>
                                 <ListItemIcon>
                                     <LogoutIcon />
                                 </ListItemIcon>

@@ -155,10 +155,14 @@ export default function usePushNotifications({userSubscription, setUserSubscript
     const onClickSendSubscriptionToPushServer = async (theSubscription) => {
         const result = await http
             // .post("/api/subscribe", userSubscription)
-            .post("/api/subscribe", theSubscription, userContext.accessToken)
+            .post("/api/device/register" +
+                "?device_name=" + encodeURIComponent('My Smart Phone') +
+                "&device_type=" + encodeURIComponent('smartphone') ,
+                theSubscription,
+                userContext.accessToken)
             .then(response => {
-                console.log('Subscribed successfully. ID: ' + response.subscriptionId);
-                setInfo('Subscribed successfully. ID: ' + response.subscriptionId);
+                console.log('Device registered successfully. ID: ' + response.subscriptionId);
+                setInfo('Device registered successfully. ID: ' + response.subscriptionId);
                 setPushServerSubscriptionId(response.subscriptionId);
                 return true;
             })
@@ -195,7 +199,9 @@ export default function usePushNotifications({userSubscription, setUserSubscript
         const existingSubscription = await getUserSubscription();
 
         await http.post(
-            '/api/claimToken?token=' + encodeURIComponent('F0-34-AC-03') +
+            '/api/trigger/claimToken' +
+            '?token=' + encodeURIComponent('F0-34-AC-03') +
+            '&trigger_name=' + encodeURIComponent('My Test Trigger') +
             '&subscriptionEndpoint=' + existingSubscription.endpoint,
             '',
             userContext.accessToken

@@ -7,17 +7,17 @@ import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
 import SvgIcon  from "@material-ui/core/SvgIcon"
-
 import Button from '@material-ui/core/Button';
+
+import GoogleLogin from 'react-google-login';
+import FacebookLogin from 'react-facebook-login';
+import InstagramLogin from "react-instagram-login";
+import GitHubLogin from 'github-login';
 
 import PushrNavigation from '../PushrNavigation';
 import pushRlogo from '../../img/pushr-dots.svg';
 
 import http from '../../util/http';
-import GoogleLogin from 'react-google-login';
-import FacebookLogin from 'react-facebook-login';
-import InstagramLogin from "react-instagram-login";
-import GitHubLogin from 'github-login';
 
 
 import {useHistory} from "react-router-dom";

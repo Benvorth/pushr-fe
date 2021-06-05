@@ -23,8 +23,8 @@ async function checkSubscription(accessToken) {
         const registration = await navigator.serviceWorker.ready;
         const subscription = await registration.pushManager.getSubscription();
         if (subscription) {
-            const result = await http.post('/api/isSubscribed',
-                {endpoint: subscription.endpoint},
+            const result = await http.post('/api/device/is_known',
+                subscription.endpoint,
                 accessToken
             );
             /*const response = await fetch("/api/isSubscribed", {
