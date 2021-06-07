@@ -1,6 +1,6 @@
 {
   "short_name": "PUSHr",
-  "name": "PUSHr - Open source notifications for your mobile phone",
+  "name": "PUSHr - open notifications",
 
   "icons": [
     {
@@ -67,6 +67,6 @@
   "lang": "en-US",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "white",
+  "background_color": "black",
   "theme_color": "white"
 }

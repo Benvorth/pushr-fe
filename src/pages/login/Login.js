@@ -157,7 +157,7 @@ export default function Login({setUserContext, userContext, title, selectedIndex
                 <Paper className={classes.paper}>
                     <br/>
                     <br/>
-                    <img src={pushRlogo} width="85" alt="PUSHr - open notifications"/>
+                    <img src={pushRlogo} width="72" alt="PUSHr - open notifications"/>
                     <br/>
                     <Typography variant="h3">
                         PUSHr
