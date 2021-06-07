@@ -3,7 +3,7 @@ import {BrowserRouter as Router, Switch, Route, Link} from 'react-router-dom';
 
 // import './App.css';
 import Login from './pages/login/Login';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/dashboard/Dashboard';
 import Trigger from './pages/Trigger';
 import Messages from './pages/Messages';
 import Recipients from './pages/Recipients';

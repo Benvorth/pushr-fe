@@ -30,6 +30,8 @@ import PeopleIcon from '@material-ui/icons/People';
 import DevicesIcon from '@material-ui/icons/DevicesOther';
 import SettingstIcon from '@material-ui/icons/Settings';
 import LogoutIcon from '@material-ui/icons/ExitToApp';
+
+import QrCodeIcon from '@material-ui/icons/CropFree';
 import Menu from '@material-ui/core/Menu';
 
 const drawerWidth = 240;
@@ -44,6 +46,13 @@ const useStyles = makeStyles((theme) => ({
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
         }),
+    },
+    appBarBottom: {
+        top: 'auto',
+        bottom: 0,
+    },
+    grow: {
+        flexGrow: 1,
     },
     appBarShift: {
         // marginLeft: drawerWidth,
@@ -80,10 +89,7 @@ const useStyles = makeStyles((theme) => ({
             duration: theme.transitions.duration.leavingScreen,
         }),
         overflowX: 'hidden',
-        width: theme.spacing(7) + 1,
-        [theme.breakpoints.up('sm')]: {
-            width: theme.spacing(9) + 1,
-        },
+        width: 0,
     },
     toolbar: {
         display: 'flex',
@@ -187,7 +193,9 @@ export default function PushrNavigation({children, userContext, title, selectedI
 
                     </AppBar>
                     <Drawer
-                        variant="permanent"
+                        variant="persistent"
+                        anchor="left"
+                        open={open}
                         className={clsx(classes.drawer, {
                             [classes.drawerOpen]: open,
                             [classes.drawerClose]: !open,
@@ -291,6 +299,19 @@ export default function PushrNavigation({children, userContext, title, selectedI
                         </Typography>*/}
                     </main>
                 </div>
+
+                <AppBar position="fixed" color="primary" className={classes.appBarBottom}>
+                    <Toolbar>
+                        <IconButton edge="start" color="inherit">
+                            <DashboardIcon />
+                        </IconButton>
+                        <div className={classes.grow} />
+
+                        <IconButton edge="end" color="inherit">
+                            <QrCodeIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
             </ThemeProvider>
         </div>
     );
