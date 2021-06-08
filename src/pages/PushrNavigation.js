@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import Avatar from '@material-ui/core/Avatar';
 import {
     makeStyles,
+    withStyles,
     ThemeProvider,
     unstable_createMuiStrictModeTheme as createMuiTheme
 } from '@material-ui/core/styles';
@@ -34,9 +35,17 @@ import LogoutIcon from '@material-ui/icons/ExitToApp';
 import QrCodeIcon from '@material-ui/icons/CropFree';
 import Menu from '@material-ui/core/Menu';
 
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import MuiDialogTitle from '@material-ui/core/DialogTitle';
+import MuiDialogContent from '@material-ui/core/DialogContent';
+import MuiDialogActions from '@material-ui/core/DialogActions';
+import CloseIcon from '@material-ui/icons/Close';
+import QrScan from 'react-qr-reader'
+
 const drawerWidth = 240;
 
-const useStyles = makeStyles((theme) => ({
+const styles = (theme) => ({
     root: {
         display: 'flex',
     },
@@ -103,7 +112,47 @@ const useStyles = makeStyles((theme) => ({
         flexGrow: 1,
         padding: theme.spacing(3),
     },
-}));
+
+    dialogRoot: {
+        margin: 0,
+        padding: theme.spacing(2),
+    },
+    dialogCloseButton: {
+        position: 'absolute',
+        right: theme.spacing(1),
+        top: theme.spacing(1),
+        color: theme.palette.grey[500],
+    },
+});
+
+const useStyles = makeStyles(styles);
+
+const DialogTitle = withStyles(styles)((props) => {
+    const { children, classes, onClose, ...other } = props;
+    return (
+        <MuiDialogTitle disableTypography className={classes.dialogRoot} {...other}>
+            <Typography variant="h6">{children}</Typography>
+            {onClose ? (
+                <IconButton aria-label="close" className={classes.dialogCloseButton} onClick={onClose}>
+                    <CloseIcon />
+                </IconButton>
+            ) : null}
+        </MuiDialogTitle>
+    );
+});
+
+const DialogContent = withStyles((theme) => ({
+    root: {
+        padding: theme.spacing(2),
+    },
+}))(MuiDialogContent);
+
+const DialogActions = withStyles((theme) => ({
+    root: {
+        margin: 0,
+        padding: theme.spacing(1),
+    },
+}))(MuiDialogActions);
 
 // https://krasimirtsonev.com/blog/article/children-in-jsx
 export default function PushrNavigation({children, userContext, title, selectedIndex, setSelectedIndex}) {
@@ -113,6 +162,8 @@ export default function PushrNavigation({children, userContext, title, selectedI
     let history = useHistory();
 
     const [open, setOpen] = React.useState(false);
+    const [qrScanOpen, setQrScanOpen] = React.useState(false);
+    const [qrscan, setQrscan] = React.useState('No result');
     // const [selectedIndex, setSelectedIndex] = React.useState(0);
 
     if (!userContext || Object.keys(userContext).length === 0) {
@@ -126,6 +177,23 @@ export default function PushrNavigation({children, userContext, title, selectedI
     const handleDrawerClose = () => {
         setOpen(false);
     };
+
+    const handleQRscannerOpen = () => {
+        setQrscan('No result');
+        setQrScanOpen(true);
+    }
+    const handleQRscannerClose = () => {
+        setQrScanOpen(false);
+    }
+
+    const handleQRscanError = (err) => {
+        console.error(err)
+    }
+    const handleQRScanScan = (data) => {
+        if (data) {
+            setQrscan(data)
+        }
+    }
 
     const handleSwitchTab = (index, url) => {
         setSelectedIndex(index);
@@ -270,6 +338,33 @@ export default function PushrNavigation({children, userContext, title, selectedI
                     </Drawer>
                     <main className={classes.content}>
                         <div className={classes.toolbar} />
+
+                        <Dialog onClose={handleQRscannerClose} aria-labelledby="customized-dialog-title" open={qrScanOpen}>
+                            <DialogTitle id="customized-dialog-title" onClose={handleQRscannerClose}>
+                                QR-Code Scanner
+                            </DialogTitle>
+                            <DialogContent dividers>
+
+                                <div>
+                                    <QrScan
+                                        delay={300}
+                                        onError={handleQRscanError}
+                                        onScan={handleQRScanScan}
+                                        style={{ height: 280, width: 280 }}
+                                    />
+                                </div>
+                                <div>
+                                    {qrscan}
+                                </div>
+
+                            </DialogContent>
+                            <DialogActions>
+                                <Button autoFocus onClick={handleQRscannerClose} color="primary">
+                                    Save changes
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+
                         {children}
 
 
@@ -314,7 +409,7 @@ export default function PushrNavigation({children, userContext, title, selectedI
                             </IconButton>
                             <div className={classes.grow} />
 
-                            <IconButton edge="end" color="inherit">
+                            <IconButton edge="end" color="inherit" onClick={handleQRscannerOpen}>
                                 <QrCodeIcon />
                             </IconButton>
                         </Toolbar>
