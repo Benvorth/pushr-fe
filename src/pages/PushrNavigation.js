@@ -297,21 +297,31 @@ export default function PushrNavigation({children, userContext, title, selectedI
                             nibh sit. Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra maecenas
                             accumsan lacus vel facilisis. Nulla posuere sollicitudin aliquam ultrices sagittis orci a.
                         </Typography>*/}
+
+
+                        <div>
+                            {/*This is required because of the the bottom AppBar*/}
+                            &nbsp;<br/>
+                            &nbsp;<br/>
+                            &nbsp;<br/>
+                        </div>
                     </main>
+
+                    <AppBar position="fixed" color="primary" className={classes.appBarBottom}>
+                        <Toolbar>
+                            <IconButton edge="start" color="inherit">
+                                <DashboardIcon />
+                            </IconButton>
+                            <div className={classes.grow} />
+
+                            <IconButton edge="end" color="inherit">
+                                <QrCodeIcon />
+                            </IconButton>
+                        </Toolbar>
+                    </AppBar>
                 </div>
 
-                <AppBar position="fixed" color="primary" className={classes.appBarBottom}>
-                    <Toolbar>
-                        <IconButton edge="start" color="inherit">
-                            <DashboardIcon />
-                        </IconButton>
-                        <div className={classes.grow} />
 
-                        <IconButton edge="end" color="inherit">
-                            <QrCodeIcon />
-                        </IconButton>
-                    </Toolbar>
-                </AppBar>
             </ThemeProvider>
         </div>
     );

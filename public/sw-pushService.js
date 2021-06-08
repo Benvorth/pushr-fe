@@ -25,10 +25,14 @@ let filesToCache = [
     // '/js/pushNotify_client.js'
 ];
 
+// https://developers.google.com/web/fundamentals/primers/service-workers/lifecycle
+
 /* Start the service worker and cache all of the app's content */
 /* eslint-disable-next-line no-restricted-globals */
 self.addEventListener('install', (e) => {
-    console.log('[Service Worker] Install cache...')
+    console.log('[Service Worker cache] Install cache...')
+    // A promise passed to installEvent.waitUntil() signals
+    // the duration and success or failure of your install.
     e.waitUntil(
         caches.open(cacheName).then((cache) => {
             return cache.addAll(filesToCache);
@@ -49,6 +53,7 @@ self.addEventListener('fetch', (e) => {
 /* Delete old cache versions */
 /* eslint-disable-next-line no-restricted-globals */
 self.addEventListener('activate', (e) => {
+    console.log('[Service Worker cache]: V1 now ready to handle fetches!');
     e.waitUntil(caches.keys().then((keyList) => {
         Promise.all(keyList.map((key) => {
             if (key === cacheName) {
