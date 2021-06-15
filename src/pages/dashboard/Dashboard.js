@@ -17,27 +17,7 @@ import AppContext from '../../AppContext';
 const Loading = ({loading}) => (loading ?
     <div className="app-loader">Please wait, we are loading something...</div> : null);
 
-const Error = ({error}) =>
-    error ? (
-        <Snackbar open={true} autoHideDuration={3000}>
-            <Alert severity="error">
-                {error.name}: {error.message} ({error.code})
-            </Alert>
-        </Snackbar>
-    ) : null;
-
 // destructuring: https://medium.com/@lcriswell/destructuring-props-in-react-b1c295005ce0
-const Info = ({info, onClose}) => {
-    return info ? (
-        <Snackbar open={!!info} autoHideDuration={3000} onClose={onClose} onClick={onClose}>
-            <Alert severity="success" onClose={onClose}>
-                {info.message}
-            </Alert>
-
-        </Snackbar>
-    ) : null;
-}
-
 const PushMsg = ({lastMessage, onClose}) =>
     lastMessage ? (
         <Snackbar open={true} autoHideDuration={6000} onClose={onClose} onClick={onClose}>
@@ -58,9 +38,7 @@ export default function Dashboard({
     const globalState = useContext(AppContext);
 
 
-    const handleInfoClose = () => {
-        setInfo(false);
-    };
+
     const handlePushMsgClose = () => {
         setLastMessage(false);
     };
@@ -77,9 +55,7 @@ export default function Dashboard({
         onClickSendNotification,
         userConsent,
         pushNotificationSupported,
-        error,
         loading,
-        info, setInfo,
         lastMessage, setLastMessage,
         onClickTriggerEvent
     } = pushService({
@@ -324,8 +300,6 @@ export default function Dashboard({
 
             <div className="container">
                 <Loading loading={loading}/>
-                <Error error={error}/>
-                <Info info={info} onClose={handleInfoClose}/>
                 <PushMsg lastMessage={lastMessage} onClose={handlePushMsgClose}/>
 
                 <div className="row">

@@ -67,6 +67,7 @@ self.addEventListener('activate', (e) => {
 // --------------------- Push Service
 
 async function receivePushNotification(event) {
+    // todo implement this https://developers.google.com/web/ilt/pwa/introduction-to-push-notifications#serviceworkerjs_7
     console.log("[Service Worker - Push] Push Received.");
 
     const needToShow = await needToShowNotification();
@@ -134,6 +135,13 @@ function openPushNotification(event) {
     }
 
 
+    // close all notifications
+    // https://developers.google.com/web/ilt/pwa/introduction-to-push-notifications#serviceworkerjs_8
+    self.registration.getNotifications().then((notifications) => {
+        notifications.forEach((notification) => {
+            notification.close();
+        });
+    });
 
 }
 

@@ -38,6 +38,7 @@ import QRCodeScanner from './QRCodeScanner';
 import AppContext from '../../AppContext';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Backdrop from '@material-ui/core/Backdrop';
+import { SnackbarProvider, useSnackbar } from 'notistack';
 
 const drawerWidth = 240;
 
@@ -202,7 +203,17 @@ export default function PushrNavigation(
         }
     });
 
+    // https://iamhosseindhv.com/notistack/demos
     return (
+        <SnackbarProvider
+            dense
+            maxSnack={5}
+            anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+            }}
+            autoHideDuration={2500}
+        >
         <div className="App">
             <ThemeProvider theme={theme}>
                 <div className={classes.root}>
@@ -403,5 +414,6 @@ export default function PushrNavigation(
 
             </ThemeProvider>
         </div>
+        </SnackbarProvider>
     );
 }

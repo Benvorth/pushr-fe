@@ -18,6 +18,10 @@ import CopyIcon from '@material-ui/icons/FileCopy';
 
 import InputAdornment from '@material-ui/core/InputAdornment';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
+import Snackbar from '@material-ui/core/Snackbar';
+import CloseIcon from '@material-ui/icons/Close';
+
+import { useSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -72,6 +76,7 @@ export default function NewEvent() {
     const classes = useStyles();
     let history = useHistory();
     let {trigger} = useParams();
+    const { enqueueSnackbar } = useSnackbar();
     const eventNameElement = useRef(null);
 
     const [newTrigger, setNewTrigger] = useState('fetching...');
@@ -80,6 +85,7 @@ export default function NewEvent() {
     const [subscribePermission, setSubscribePermission] = React.useState('everyone');
     const [triggerActive, setTriggerActive] = React.useState(true);
     const [subscribeNow, setSubscribeNow] = React.useState(true);
+    const [copyToClipboardInfoOpen, setCopyToClipboardInfoOpen] = React.useState(false);
     const [backdropOpen, setBackdropOpen] = React.useState(false);
 
     const globalState = useContext(AppContext);
@@ -99,12 +105,19 @@ export default function NewEvent() {
      // an empty array if you just want to run it once after component mounted.
         []);
 
+    const handleCopyToClipboardInfoOpen = () => {
+        enqueueSnackbar('Trigger URL copied to clipboard', {
+            variant: 'success',
+        });
+    };
+
     const handleEventNameChange = (event)=> {
         setEventName(event.target.value);
     }
 
     const handleClickCopyTriggerURL = () => {
         copyToClipboard('https://pushr.info/token/' + newTrigger);
+        handleCopyToClipboardInfoOpen();
     }
 
     const handleMouseDownTriggerURL = (event) => {

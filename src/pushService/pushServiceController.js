@@ -99,7 +99,7 @@ async function createNotificationSubscription() {
     // subscribe and return the subscription
     // console.log('publicSigningKey ' + btoa(publicSigningKey));
     return await serviceWorker.pushManager.subscribe({
-        userVisibleOnly: true,
+        userVisibleOnly: true, // browser ensures that every incoming message has a matching (and visible) notification
         applicationServerKey: publicSigningKey
     });
 }
