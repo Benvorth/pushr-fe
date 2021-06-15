@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useContext } from 'react';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Link from '@material-ui/core/Link';
 import Box from '@material-ui/core/Box';
@@ -14,7 +14,8 @@ import FacebookLogin from 'react-facebook-login';
 import InstagramLogin from "react-instagram-login";
 import GitHubLogin from 'github-login';
 
-import PushrNavigation from '../PushrNavigation';
+import AppContext from '../../AppContext';
+
 import pushRlogo from '../../img/pushr.svg';
 
 import http from '../../util/http';
@@ -62,9 +63,12 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function Login({setUserContext, userContext, title, selectedIndex, setSelectedIndex}) {
+export default function Login() {
     const classes = useStyles();
     let history = useHistory();
+
+    // const [globalState, dispatchGlobalState] = useTracked();
+    const globalState = useContext(AppContext);
 
     const responseGoogle = async (googleUser) => {
 
@@ -81,14 +85,14 @@ export default function Login({setUserContext, userContext, title, selectedIndex
 
         const res = await http.put('/api/user/google', id_token);
 
-        setUserContext({
+        globalState.setUserContext({
             accessToken: res.token,
             accessTokenCreated: res.created,
             accessTokenExpires: res.expires,
-
             userName: profile.getName(),
             userImgUrl: profile.getImageUrl(),
             loginProvider: 'Google'
+
         });
 
         /*
@@ -115,19 +119,9 @@ export default function Login({setUserContext, userContext, title, selectedIndex
         debugger;
     };
 
-    const onLoginClicked = () => {
-        setUserContext({
-            userName: 'John Doea',
-            userImgUrl: 'https://i.pravatar.cc/96',
-            loginProvider: 'Google'
-        });
-        history.push('/dashboard');
-        return;
-    }
-
     // Similar to componentDidMount and componentDidUpdate:
     useEffect(() => {
-        if (!!userContext && 'userImgUrl' in userContext) {
+        if (!!globalState.userContext && globalState.userContext.accessToken) {
             history.push('/dashboard');
         }
     });
@@ -151,115 +145,113 @@ export default function Login({setUserContext, userContext, title, selectedIndex
     );
 
     return (
-        <PushrNavigation userContext={userContext} title={title} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}>
-            <Container component="main" maxWidth="xs">
-                <CssBaseline/>
-                <Paper className={classes.paper}>
+        <Container component="main" maxWidth="xs">
+            <CssBaseline/>
+            <Paper className={classes.paper}>
+                <br/>
+                <br/>
+                <img src={pushRlogo} width="72" alt="PUSHr - open notifications"/>
+                <br/>
+                <Typography variant="h3">
+                    PUSHr
+                </Typography>
+                <Typography variant="h6">
+                    open notifications
+                </Typography>
+                <br/>
+                <br/>
+                <form className={classes.form} noValidate>
+
+                    {(true || process.env.NODE_ENV === "production" ?
+                            <>
+                                <GoogleLogin
+                                    clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"
+                                    buttonText="Login with Google"
+                                    onSuccess={responseGoogle}
+                                    onFailure={responseGoogle}
+                                    isSignedIn={true}
+                                    fullWidth
+                                    render={renderProps => (
+                                        <Button
+                                            className={classes.button}
+                                            variant='outlined'
+                                            startIcon={googleSVGIcon}
+                                            onClick={renderProps.onClick} disabled={renderProps.disabled}>
+                                                Login using Google
+                                        </Button>
+                                    )}
+                                />
+
+                                <GoogleLogin
+                                    clientId='123'
+                                    buttonText='Login with Google'
+                                    onSuccess={false}
+                                    onFailure={false}
+                                    isSignedIn={true}
+                                    fullWidth
+                                    render={renderProps => (
+                                        <Button
+                                            className={classes.button}
+                                            variant="outlined"
+                                            startIcon={facebookSVGIcon}
+                                            disabled
+                                        >
+                                            Login using Facebook
+                                        </Button>
+                                    )}
+                                />
+
+                                <GoogleLogin
+                                    clientId='123'
+                                    buttonText="Login with Google"
+                                    onSuccess={false}
+                                    onFailure={false}
+                                    isSignedIn={true}
+                                    fullWidth
+                                    render={renderProps => (
+                                        <Button
+                                            className={classes.button}
+                                            variant="outlined"
+                                            startIcon={gitHubSVGIcon}
+                                            disabled
+                                        >
+                                                 Login using GitHub
+                                        </Button>
+                                    )}
+                                />
+                                {/*
+                        <FacebookLogin
+                            appId="123"
+                            autoLoad={true}
+                            fields="name,email,picture"
+                            onClick={onLoginClicked}
+                            callback={responseFacebook}
+                        /><br/>
+
+                        <InstagramLogin
+                            clientId="123"
+                            buttonText="Login"
+                            onSuccess={responseInstagram}
+                            onFailure={responseInstagram}
+                        /><br/>
+
+                        <GitHubLogin clientId="ac56fad434a3a3c1561e"
+                                     onSuccess={responseGitHub}
+                                     onFailure={responseGitHub}
+                        />*/}
+                            </>
+                            :
+                            <button >Login with google</button>
+                    )}
                     <br/>
-                    <br/>
-                    <img src={pushRlogo} width="72" alt="PUSHr - open notifications"/>
-                    <br/>
-                    <Typography variant="h3">
-                        PUSHr
-                    </Typography>
-                    <Typography variant="h6">
-                        open notifications
-                    </Typography>
-                    <br/>
-                    <br/>
-                    <form className={classes.form} noValidate>
-
-                        {(true || process.env.NODE_ENV === "production" ?
-                                <>
-                                    <GoogleLogin
-                                        clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"
-                                        buttonText="Login with Google"
-                                        onSuccess={responseGoogle}
-                                        onFailure={responseGoogle}
-                                        isSignedIn={true}
-                                        fullWidth
-                                        render={renderProps => (
-                                            <Button
-                                                className={classes.button}
-                                                variant="outlined"
-                                                startIcon={googleSVGIcon}
-                                                onClick={renderProps.onClick} disabled={renderProps.disabled}>
-                                                    Login using Google
-                                            </Button>
-                                        )}
-                                    />
-
-                                    <GoogleLogin
-                                        clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"
-                                        buttonText="Login with Google"
-                                        onSuccess={false}
-                                        onFailure={false}
-                                        isSignedIn={true}
-                                        fullWidth
-                                        render={renderProps => (
-                                            <Button
-                                                className={classes.button}
-                                                variant="outlined"
-                                                startIcon={facebookSVGIcon}
-                                                disabled
-                                            >
-                                                Login using Facebook
-                                            </Button>
-                                        )}
-                                    />
-
-                                    <GoogleLogin
-                                        clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"
-                                        buttonText="Login with Google"
-                                        onSuccess={false}
-                                        onFailure={false}
-                                        isSignedIn={true}
-                                        fullWidth
-                                        render={renderProps => (
-                                            <Button
-                                                className={classes.button}
-                                                variant="outlined"
-                                                startIcon={gitHubSVGIcon}
-                                                disabled
-                                            >
-                                                     Login using GitHub
-                                            </Button>
-                                        )}
-                                    />
-                                    {/*
-                            <FacebookLogin
-                                appId="123"
-                                autoLoad={true}
-                                fields="name,email,picture"
-                                onClick={onLoginClicked}
-                                callback={responseFacebook}
-                            /><br/>
-
-                            <InstagramLogin
-                                clientId="123"
-                                buttonText="Login"
-                                onSuccess={responseInstagram}
-                                onFailure={responseInstagram}
-                            /><br/>
-
-                            <GitHubLogin clientId="ac56fad434a3a3c1561e"
-                                         onSuccess={responseGitHub}
-                                         onFailure={responseGitHub}
-                            />*/}
-                                </>
-                                :
-                                <button onClick={onLoginClicked}>Login with google</button>
-                        )}
-                        <br/>
 
 
-                    </form>
-                    <br/>
-                </Paper>
-                <Box mt={2}>
-                    <Copyright/>
-                </Box>
-            </Container>
-        </PushrNavigation>
+                </form>
+                <br/>
+            </Paper>
+            <Box mt={2}>
+                <Copyright/>
+            </Box>
+        </Container>
     );
 }

@@ -100,7 +100,10 @@ async function receivePushNotification(event) {
             badge: 'img/pushr-16.png',
             actions: [{action: "Detail", title: "View", icon: 'img/pushr-72.png'}]
         };
-        await self.registration.showNotification(title, options);
+        // ensure the service worker doesn't terminate before an asynchronous operation has completed.
+        event.waitUntil(
+            self.registration.showNotification(title, options)
+        );
 
         msg = body;
     }
@@ -115,10 +118,23 @@ async function receivePushNotification(event) {
 }
 
 function openPushNotification(event) {
-    console.log('[Service Worker - Push] Notification click Received.', event.notification.data);
 
-    event.notification.close();
-    event.waitUntil(clients.openWindow(event.notification.data));
+    console.log('[Service Worker - Push] Notification click Received.', notification.data);
+
+
+    let notification = event.notification;
+    let action = event.action;
+
+    if (action === 'close') {
+        notification.close();
+    } else {
+        notification.close();
+        event.waitUntil(clients.openWindow(notification.data));
+        notification.close();
+    }
+
+
+
 }
 
 async function needToShowNotification() {
@@ -137,6 +153,14 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('push', receivePushNotification);
-self.addEventListener('notificationclick', openPushNotification);
 
-self.addEventListener('notificationclose', event => console.info('[Service Worker - Push] notificationclose event fired'));
+// https://developers.google.com/web/ilt/pwa/introduction-to-push-notifications
+self.addEventListener('notificationclick', (e)=>{
+        openPushNotification(e);
+});
+
+self.addEventListener('notificationclose', (e) => {
+    let notification = e.notification;
+    // let primaryKey = notification.data.primaryKey;
+    console.info('[Service Worker - Push] notificationclose event fired')
+});

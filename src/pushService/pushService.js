@@ -6,12 +6,11 @@ import http from "../util/http";
 import {
     isPushNotificationSupported,
     askUserPermission,
-    registerServiceWorker,
     sendNotification,
     createNotificationSubscription,
     getUserSubscription,
     getPushServerPublicKey,
-    checkSubscription
+    alreadySubscribed
 } from "./pushServiceController";
 
 const pushNotificationSupported = isPushNotificationSupported();
@@ -33,28 +32,31 @@ export default function usePushNotifications({userSubscription, setUserSubscript
 
             setLoading(true);
             setError(false);
-            registerServiceWorker().then(() => {
+            navigator.serviceWorker.register('/sw-pushService.js').then((reg) => {
+                console.log('+Push Notification service worker registered', reg);
 
                 // listen for data from push service Worker
                 navigator.serviceWorker.addEventListener(
                     'message', event => setLastMessage(event.data.msg)
                 );
 
-                console.log('+Push Notification service worker registered');
                 getPushServerPublicKey(userContext.accessToken)
                     .then((success) => {
-                    console.log('+Push Notification server public key fetched successful: ' + success);
+                    console.log('+Push Notification server public key fetched successfully: ' + success);
                     onClickAskUserPermission().then((usersConsent) => {
                         console.log('+User Consent: ' + usersConsent);
                         if (usersConsent) {
-                            checkSubscription(userContext.accessToken)
-                                .then((alreadySubscribed) => {
-                                console.log('+Already subscribed: ' + alreadySubscribed);
-                                if (alreadySubscribed) {
+                            alreadySubscribed(userContext.accessToken)
+                                .then((existingSubscription) => {
+                                console.log('+Already subscribed: ' + (existingSubscription === null));
+                                if (existingSubscription !== null) {
                                     setInfo({message: "Push Notification already subscribed"});
-                                    const existingSubscription = getUserSubscription();
+                                    // const existingSubscription = getUserSubscription();
                                     setUserSubscription(existingSubscription);
-                                    setLoading(false);
+                                    onClickSendSubscriptionToPushServer(existingSubscription).then((success) => {
+                                        console.log('+Send subscription to PUSHr server successful: ' + success);
+                                        setLoading(false);
+                                    });
                                 } else {
                                     setInfo({message: 'Push Notification  not subscribed yet'});
                                     onClickSubscribeToPushNotification().then((subscription) => {
@@ -193,29 +195,28 @@ export default function usePushNotifications({userSubscription, setUserSubscript
         setLoading(false);
     };
 
-    const onClickClaimToken = async () => {
+    const onClickTriggerEvent = async (trigger) => {
         setLoading(true);
         setError(false);
         const existingSubscription = await getUserSubscription();
 
-        await http.post(
-            '/api/trigger/claimToken' +
-            '?token=' + encodeURIComponent('F0-34-AC-03') +
-            '&trigger_name=' + encodeURIComponent('My Test Trigger') +
-            '&subscriptionEndpoint=' + existingSubscription.endpoint,
-            '',
+        await http.get(
+            '/api/push' +
+            '?trigger=' + encodeURIComponent(trigger),
             userContext.accessToken
         ).then(response => {
-            console.log('Token F0-34-AC-03 claimed successfully: ' + JSON.stringify(response));
-            setInfo('Token F0-34-AC-03 claimed successfully.');
+            console.log('Token claimed successfully: ' + JSON.stringify(response));
+            setInfo('Trigger ' + trigger + ' pushed successfully.');
             setLoading(false);
         })
             .catch(err => {
-                console.info('Could not claim token F0-34-AC-03');
+                console.info('Could not push trigger ' + trigger);
                 setLoading(false);
                 setError(err);
             });
     }
+
+
 
     /**
      * returns all the stuff needed by a Component
@@ -233,6 +234,6 @@ export default function usePushNotifications({userSubscription, setUserSubscript
         loading,
         info, setInfo,
         lastMessage, setLastMessage,
-        onClickClaimToken
+        onClickTriggerEvent,
     };
 }

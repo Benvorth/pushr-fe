@@ -92,6 +92,7 @@ export default function Envelopes({envelopes}) {
                 <Accordion
                     expanded={expanded === 'envelope_' + number}
                     onChange={handleChange('envelope_' + number)}
+                    key={'Envelope_' + number}
                 >
                     <AccordionSummary
                         expandIcon={<ExpandMoreIcon/>}

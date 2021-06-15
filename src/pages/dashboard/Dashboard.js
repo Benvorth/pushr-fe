@@ -1,5 +1,6 @@
-import React, {useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import {useHistory} from "react-router-dom";
+
 
 import Snackbar from '@material-ui/core/Snackbar';
 import Typography from '@material-ui/core/Typography';
@@ -7,13 +8,10 @@ import IconButton from '@material-ui/core/IconButton';
 import Alert from '@material-ui/lab/Alert';
 
 import WhistleIcon from '@material-ui/icons/Sports';
-import HttpIcon from '@material-ui/icons/Http';
-import QrCodeIcon from '@material-ui/icons/CropFree';
-import ScheduleIcon from '@material-ui/icons/Schedule';
-
-import PushrNavigation from '../PushrNavigation';
+import AddIcon from '@material-ui/icons/Add';
 import pushService from '../../pushService/pushService';
 import Envelopes from './Envelopes';
+import AppContext from '../../AppContext';
 
 
 const Loading = ({loading}) => (loading ?
@@ -51,13 +49,13 @@ const PushMsg = ({lastMessage, onClose}) =>
 
 
 
-export default function Dashboard(
-    {
-        userContext, title, selectedIndex, setSelectedIndex, token, setToken,
-        userSubscription, setUserSubscription
+export default function Dashboard({
+      token, setToken,
+      userSubscription, setUserSubscription
     }) {
 
     let history = useHistory();
+    const globalState = useContext(AppContext);
 
 
     const handleInfoClose = () => {
@@ -66,6 +64,10 @@ export default function Dashboard(
     const handlePushMsgClose = () => {
         setLastMessage(false);
     };
+
+    const handleAddEnvelope = () => {
+        history.push('/envelope/new');
+    }
 
     const {
         onClickAskUserPermission,
@@ -79,12 +81,26 @@ export default function Dashboard(
         loading,
         info, setInfo,
         lastMessage, setLastMessage,
-        onClickClaimToken
-    } = pushService({userSubscription, setUserSubscription, userContext});
+        onClickTriggerEvent
+    } = pushService({
+        userSubscription: userSubscription,
+        setUserSubscription: setUserSubscription,
+        userContext: globalState.userContext
+    });
 
-    if (!userContext || !('userImgUrl' in userContext)) {
+
+    useEffect(() => {
+        if (!globalState.userContext || !globalState.userContext.accessToken) {
+            history.push('/login');
+        }
+    });
+
+    /*
+    if (!userContext || !('userImgUrl' in userContext) || !('userName' in userContext)) {
         history.push('/login');
     }
+    */
+
 
     // todo: PushMsg handling automated (from pushServicePanel)
     if (!!token) {
@@ -285,17 +301,24 @@ export default function Dashboard(
     ];
 
     return (
-        <PushrNavigation
-            userContext={userContext} title={title}
-            selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
-        >
+        <>
+            <div className="row">
+                <div className="col-sm-3"> Welcome : {globalState.userContext.userName}</div>
+                <div className="col-sm-9"></div>
+            </div>
 
             <Typography>My PUSHrs</Typography>
             <IconButton>
                 <WhistleIcon color="secondary"/>
             </IconButton>
 
-            <Typography>My Envelopes</Typography>
+            <div>
+                <Typography>My Envelopes</Typography>
+                <IconButton onClick={handleAddEnvelope}>
+                    <AddIcon color="secondary"/>
+                </IconButton>
+            </div>
+
             <Envelopes envelopes={envelopes} />
 
 
@@ -310,17 +333,8 @@ export default function Dashboard(
                         Welcome to Dashboard
                     </div>
                 </div>
-                <div className="row">
-                    <div className="col-sm-3"> Welcome : {userContext.userName}</div>
-                    <div className="col-sm-9"></div>
-                </div>
-                {token ?
-                    <div className="row">
-                        <div className="col-sm-3"> Token : {token}</div>
-                        <button onClick={onClickClaimToken}>Claim token {token}</button>
-                    </div>
-                    : null}
+
             </div>
-        </PushrNavigation>
+        </>
     )
 }

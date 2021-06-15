@@ -17,34 +17,31 @@ async function getPushServerPublicKey(accessToken) {
     return result;
 }
 
-async function checkSubscription(accessToken) {
+async function alreadySubscribed(accessToken) {
 
     if ('serviceWorker' in navigator) {
         const registration = await navigator.serviceWorker.ready;
         const subscription = await registration.pushManager.getSubscription();
         if (subscription) {
+            /*
             const result = await http.post('/api/device/is_known',
                 subscription.endpoint,
                 accessToken
             );
-            /*const response = await fetch("/api/isSubscribed", {
-                method: 'POST',
-                body: JSON.stringify({endpoint: subscription.endpoint}),
-                headers: {
-                    "content-type": "application/json"
-                }
-            });
-            const subscribed = await response.json();*/
+
             if (result.status === 'success') {
+                debugger;
                 return result.msg; // true or false
             }
             console.error("failed to check subscription");
-            return false;
+             */
+            console.log('Already subscribed: ' + subscription)
+            return subscription;
         }
     } else {
         console.error('serviceWorkers not supported');
     }
-    return false;
+    return null;
 }
 
 /**
@@ -89,9 +86,7 @@ function sendNotification() {
 /**
  *
  */
-async function registerServiceWorker() {
-    return await navigator.serviceWorker.register("/sw-pushService.js");
-}
+
 
 /**
  *
@@ -123,13 +118,83 @@ function getUserSubscription() {
         });
 }
 
+async function isTriggerAssociatedWithEvent(trigger, accessToken) {
+    const result = await http
+        // .post("/api/subscribe", userSubscription)
+        .get("/api/event/is_trigger_associated_with_event" +
+            "?trigger=" + encodeURIComponent(trigger),
+            accessToken)
+        .then(response => {
+            console.log('Trigger ' + trigger + ' is claimed: ' + response.msg);
+            return (response.msg === 'true');
+        })
+        .catch(err => {
+            console.info('Could not send Subscription info to the server: ' + err);
+            return true;
+        });
+    return result;
+}
+
+async function canIPullThisTrigger(trigger, accessToken) {
+    const result = await http
+        // .post("/api/subscribe", userSubscription)
+        .get("/api/event/can_i_pull_this_trigger" +
+            "?trigger=" + encodeURIComponent(trigger),
+            accessToken)
+        .then(response => {
+            console.log('Trigger ' + trigger + ' is pullable: ' + response.msg);
+            return (response.msg === 'true');
+        })
+        .catch(err => {
+            console.error('Could check if this token is pullable: ' + err);
+            return false;
+        });
+    return result;
+}
+
+async function canISubscribeToThisEvent(trigger, accessToken) {
+    const result = await http
+        // .post("/api/subscribe", userSubscription)
+        .get("/api/event/can_i_subscribe_to_this_event" +
+            "?trigger=" + encodeURIComponent(trigger),
+            accessToken)
+        .then(response => {
+            console.log('Event connected with trigger ' + trigger + ' is subscribable by this user: ' + response.msg);
+            return (response.msg === 'true');
+        })
+        .catch(err => {
+            console.error('error can_i_subscribe_to_this_event: ' + err);
+            return false;
+        });
+    return result;
+}
+
+async function getEventNameFromTrigger(trigger, accessToken) {
+    const result = await http
+        // .post("/api/subscribe", userSubscription)
+        .get("/api/event/get_event_name_from_trigger" +
+            "?trigger=" + encodeURIComponent(trigger),
+            accessToken)
+        .then(response => {
+            console.log('Trigger ' + trigger + ' has event name ' + response.msg);
+            return (response.msg);
+        })
+        .catch(err => {
+            console.error('Could get event name from token ' + err);
+            return false;
+        });
+    return result;
+}
+
 export {
     isPushNotificationSupported,
     askUserPermission,
-    registerServiceWorker,
     sendNotification,
     createNotificationSubscription,
     getUserSubscription,
     getPushServerPublicKey,
-    checkSubscription
+    alreadySubscribed,
+    isTriggerAssociatedWithEvent,
+    canIPullThisTrigger, canISubscribeToThisEvent,
+    getEventNameFromTrigger,
 };

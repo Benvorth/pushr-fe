@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import clsx from 'clsx';
 import Avatar from '@material-ui/core/Avatar';
 import {
@@ -23,9 +23,9 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import { useHistory } from "react-router-dom";
 import Badge from '@material-ui/core/Badge';
-import pushRlogo from '../img/pushr-dots.svg';
+import pushRlogo from '../../img/pushr-dots.svg';
 import DashboardIcon from '@material-ui/icons/Dashboard';
-import TriggerIcon from '@material-ui/icons/Error';
+import TriggerIcon from '@material-ui/icons/Notifications';
 import MessagesIcon from '@material-ui/icons/Textsms';
 import PeopleIcon from '@material-ui/icons/People';
 import DevicesIcon from '@material-ui/icons/DevicesOther';
@@ -33,15 +33,11 @@ import SettingstIcon from '@material-ui/icons/Settings';
 import LogoutIcon from '@material-ui/icons/ExitToApp';
 
 import QrCodeIcon from '@material-ui/icons/CropFree';
-import Menu from '@material-ui/core/Menu';
 
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import MuiDialogTitle from '@material-ui/core/DialogTitle';
-import MuiDialogContent from '@material-ui/core/DialogContent';
-import MuiDialogActions from '@material-ui/core/DialogActions';
-import CloseIcon from '@material-ui/icons/Close';
-import QrScan from 'react-qr-reader'
+import QRCodeScanner from './QRCodeScanner';
+import AppContext from '../../AppContext';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Backdrop from '@material-ui/core/Backdrop';
 
 const drawerWidth = 240;
 
@@ -112,61 +108,55 @@ const styles = (theme) => ({
         flexGrow: 1,
         padding: theme.spacing(3),
     },
-
-    dialogRoot: {
-        margin: 0,
-        padding: theme.spacing(2),
+    largeTrigger: {
+        width: theme.spacing(5),
+        height: theme.spacing(5),
+        color: theme.palette.getContrastText('#ff7961'),
+        backgroundColor: '#ff7961'
     },
-    dialogCloseButton: {
-        position: 'absolute',
-        right: theme.spacing(1),
-        top: theme.spacing(1),
-        color: theme.palette.grey[500],
+    largeMsg: {
+        width: theme.spacing(5),
+        height: theme.spacing(5),
+        color: theme.palette.getContrastText('#4f5b62'),
+        backgroundColor: '#4f5b62'
+    },
+    largeRecipient: {
+        width: theme.spacing(5),
+        height: theme.spacing(5),
+        color: theme.palette.getContrastText('#263238'),
+        backgroundColor: '#263238'
+    },
+    largeDevice: {
+        width: theme.spacing(5),
+        height: theme.spacing(5),
+        color: theme.palette.getContrastText('#000a12'),
+        backgroundColor: '#000a12'
+    },
+    neutralAvatar: {
+        width: theme.spacing(5),
+        height: theme.spacing(5),
+        color: theme.palette.getContrastText('#eeeeee'),
+        backgroundColor: '#eeeeee'
     },
 });
 
 const useStyles = makeStyles(styles);
 
-const DialogTitle = withStyles(styles)((props) => {
-    const { children, classes, onClose, ...other } = props;
-    return (
-        <MuiDialogTitle disableTypography className={classes.dialogRoot} {...other}>
-            <Typography variant="h6">{children}</Typography>
-            {onClose ? (
-                <IconButton aria-label="close" className={classes.dialogCloseButton} onClick={onClose}>
-                    <CloseIcon />
-                </IconButton>
-            ) : null}
-        </MuiDialogTitle>
-    );
-});
-
-const DialogContent = withStyles((theme) => ({
-    root: {
-        padding: theme.spacing(2),
-    },
-}))(MuiDialogContent);
-
-const DialogActions = withStyles((theme) => ({
-    root: {
-        margin: 0,
-        padding: theme.spacing(1),
-    },
-}))(MuiDialogActions);
 
 // https://krasimirtsonev.com/blog/article/children-in-jsx
-export default function PushrNavigation({children, userContext, title, selectedIndex, setSelectedIndex}) {
+export default function PushrNavigation(
+    {children, title, backdropOpen}) {
 
     const classes = useStyles();
-    // const theme = useTheme();
     let history = useHistory();
+    const globalState = useContext(AppContext);
 
     const [open, setOpen] = React.useState(false);
     const [qrScanOpen, setQrScanOpen] = React.useState(false);
-    const [qrscan, setQrscan] = React.useState('No result');
-    // const [selectedIndex, setSelectedIndex] = React.useState(0);
 
-    if (!userContext || Object.keys(userContext).length === 0) {
+
+    if (!globalState.userContext || !globalState.userContext.accessToken) {
+        // no decoration for login-page
         return children;
     }
 
@@ -179,24 +169,13 @@ export default function PushrNavigation({children, userContext, title, selectedI
     };
 
     const handleQRscannerOpen = () => {
-        setQrscan('No result');
+
         setQrScanOpen(true);
     }
-    const handleQRscannerClose = () => {
-        setQrScanOpen(false);
-    }
 
-    const handleQRscanError = (err) => {
-        console.error(err)
-    }
-    const handleQRScanScan = (data) => {
-        if (data) {
-            setQrscan(data)
-        }
-    }
 
     const handleSwitchTab = (index, url) => {
-        setSelectedIndex(index);
+        globalState.setSelectedNaviIndex(index);
         handleDrawerClose();
         handleNavigation(url);
     }
@@ -228,6 +207,9 @@ export default function PushrNavigation({children, userContext, title, selectedI
             <ThemeProvider theme={theme}>
                 <div className={classes.root}>
                     <CssBaseline />
+                    <Backdrop className={classes.backdrop} open={backdropOpen}>
+                        <CircularProgress color="inherit" />
+                    </Backdrop>
                     <AppBar
                         position="fixed"
                         className={clsx(classes.appBar, {
@@ -246,6 +228,7 @@ export default function PushrNavigation({children, userContext, title, selectedI
                             >
                                 <MenuIcon />
                             </IconButton>
+                            <div className={classes.grow} />
                             <IconButton color="inherit">
                                 <Badge badgeContent={0} color="secondary">
                                     <img src={pushRlogo} width="50" alt="PUSHr - open notifications"/>
@@ -255,7 +238,7 @@ export default function PushrNavigation({children, userContext, title, selectedI
                                 {title}
                             </Typography>
                             <IconButton color="inherit">
-                                <Avatar className={classes.avatar} src={userContext.userImgUrl} alt={userContext.userName} />
+                                <Avatar className={classes.avatar} src={globalState.userContext.userImgUrl} alt={globalState.userContext.userName} />
                             </IconButton>
                         </Toolbar>
 
@@ -282,55 +265,77 @@ export default function PushrNavigation({children, userContext, title, selectedI
                         </div>
                         <Divider />
                         <List>
-                            <ListItem button selected={selectedIndex === 0} onClick={() => handleSwitchTab(0, '/dashboard')}>
+                            <ListItem button selected={globalState.selectedNaviIndex === 0} onClick={() => handleSwitchTab(0, '/dashboard')}>
                                 <ListItemIcon>
-                                    <DashboardIcon />
+                                    <Avatar className={classes.neutralAvatar}>
+                                        <DashboardIcon />
+                                    </Avatar>
                                 </ListItemIcon>
                                 <ListItemText primary="Dashboard" />
                             </ListItem>
 
                             <Divider />
 
-                            <ListItem button selected={selectedIndex === 1} onClick={() => handleSwitchTab(1, '/trigger')}>
+                            <ListItem button selected={globalState.selectedNaviIndex === 1} onClick={() => handleSwitchTab(1, '/events')}>
                                 <ListItemIcon>
-                                    <TriggerIcon />
+                                    <Badge badgeContent={globalState.trigger.length} color="primary">
+                                        <Avatar className={classes.largeTrigger}>
+                                            <TriggerIcon />
+                                        </Avatar>
+                                    </Badge>
                                 </ListItemIcon>
-                                <ListItemText primary="Trigger" />
+                                <ListItemText primary="Events" />
                             </ListItem>
 
-                            <ListItem button selected={selectedIndex === 2} onClick={() => handleSwitchTab(2, '/messages')}>
+                            <ListItem button selected={globalState.selectedNaviIndex === 2} onClick={() => handleSwitchTab(2, '/messages')}>
                                 <ListItemIcon>
-                                    <MessagesIcon />
+                                    <Badge badgeContent={globalState.messages.length} color="primary">
+                                        <Avatar className={classes.largeMsg}>
+                                            <MessagesIcon />
+                                        </Avatar>
+                                    </Badge>
                                 </ListItemIcon>
                                 <ListItemText primary="Messages" />
                             </ListItem>
 
-                            <ListItem button selected={selectedIndex === 3} onClick={() => handleSwitchTab(3, '/recipients')}>
+                            <ListItem button selected={globalState.selectedNaviIndex === 3} onClick={() => handleSwitchTab(3, '/recipients')}>
                                 <ListItemIcon>
-                                    <PeopleIcon />
+                                    <Badge badgeContent={globalState.recipients.length} color="primary">
+                                        <Avatar className={classes.largeRecipient}>
+                                            <PeopleIcon />
+                                        </Avatar>
+                                    </Badge>
                                 </ListItemIcon>
                                 <ListItemText primary="Recipients" />
                             </ListItem>
 
-                            <ListItem button selected={selectedIndex === 4} onClick={() => handleSwitchTab(4, '/devices')}>
+                            <ListItem button selected={globalState.selectedNaviIndex === 4} onClick={() => handleSwitchTab(4, '/devices')}>
                                 <ListItemIcon>
-                                    <DevicesIcon />
+                                    <Badge badgeContent={globalState.devices.length} color="primary">
+                                        <Avatar className={classes.largeDevice}>
+                                            <DevicesIcon />
+                                        </Avatar>
+                                    </Badge>
                                 </ListItemIcon>
                                 <ListItemText primary="Devices" />
                             </ListItem>
 
                             <Divider />
 
-                            <ListItem button selected={selectedIndex === 5} onClick={() => handleSwitchTab(5, '/settings')}>
+                            <ListItem button selected={globalState.selectedNaviIndex === 5} onClick={() => handleSwitchTab(5, '/settings')}>
                                 <ListItemIcon>
-                                    <SettingstIcon />
+                                    <Avatar className={classes.neutralAvatar}>
+                                        <SettingstIcon />
+                                    </Avatar>
                                 </ListItemIcon>
                                 <ListItemText primary="Settings" />
                             </ListItem>
 
-                            <ListItem button selected={selectedIndex === 6} onClick={() => handleSwitchTab(6, '/logout')}>
+                            <ListItem button selected={globalState.selectedNaviIndex === 6} onClick={() => handleSwitchTab(6, '/logout')}>
                                 <ListItemIcon>
-                                    <LogoutIcon />
+                                    <Avatar className={classes.neutralAvatar}>
+                                        <LogoutIcon />
+                                    </Avatar>
                                 </ListItemIcon>
                                 <ListItemText primary="Logout" />
                             </ListItem>
@@ -338,32 +343,11 @@ export default function PushrNavigation({children, userContext, title, selectedI
                     </Drawer>
                     <main className={classes.content}>
                         <div className={classes.toolbar} />
+                        <QRCodeScanner
+                            qrScanOpen={qrScanOpen} setQrScanOpen={setQrScanOpen}
+                        />
 
-                        <Dialog onClose={handleQRscannerClose} aria-labelledby="customized-dialog-title" open={qrScanOpen}>
-                            <DialogTitle id="customized-dialog-title" onClose={handleQRscannerClose}>
-                                QR-Code Scanner
-                            </DialogTitle>
-                            <DialogContent dividers>
 
-                                <div>
-                                    <QrScan
-                                        delay={300}
-                                        onError={handleQRscanError}
-                                        onScan={handleQRScanScan}
-                                        style={{ height: 280, width: 280 }}
-                                    />
-                                </div>
-                                <div>
-                                    {qrscan}
-                                </div>
-
-                            </DialogContent>
-                            <DialogActions>
-                                <Button autoFocus onClick={handleQRscannerClose} color="primary">
-                                    Save changes
-                                </Button>
-                            </DialogActions>
-                        </Dialog>
 
                         {children}
 
