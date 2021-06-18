@@ -12,6 +12,8 @@ import AddIcon from '@material-ui/icons/Add';
 import pushService from '../../pushService/pushService';
 import Envelopes from './Envelopes';
 import AppContext from '../../AppContext';
+import {getEventList} from '../event/EventController';
+import {useSnackbar} from 'notistack';
 
 
 const Loading = ({loading}) => (loading ?
@@ -36,7 +38,7 @@ export default function Dashboard({
 
     let history = useHistory();
     const globalState = useContext(AppContext);
-
+    const { enqueueSnackbar } = useSnackbar();
 
 
     const handlePushMsgClose = () => {
@@ -69,7 +71,13 @@ export default function Dashboard({
         if (!globalState.userContext || !globalState.userContext.accessToken) {
             history.push('/login');
         }
-    });
+
+        getEventList(globalState, enqueueSnackbar);
+    }, []);
+
+    useEffect(()=>{
+
+    }, []);
 
     /*
     if (!userContext || !('userImgUrl' in userContext) || !('userName' in userContext)) {

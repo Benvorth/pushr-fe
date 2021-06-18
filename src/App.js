@@ -1,14 +1,11 @@
 import React, {useState} from 'react';
-import {BrowserRouter as Router, Switch, Route, Link} from 'react-router-dom';
-
+import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 import AppContext from './AppContext';
-
-// import './App.css';
 import Login from './pages/login/Login';
 import Dashboard from './pages/dashboard/Dashboard';
 import Event from './pages/event/Event';
 import SubscribeEvent from './pages/event/SubscribeEvent';
-import NewEvent from './pages/event/NewEvent';
+import NewOrModifyEvent from './pages/event/NewOrModifyEvent';
 import Messages from './pages/Messages';
 import Recipients from './pages/Recipients';
 import Settings from './pages/settings/Settings';
@@ -36,49 +33,64 @@ function App() {
     const [backdropOpen, setBackdropOpen] = useState(null);
     const [userSubscription, setUserSubscription] = useState(null);
 
-    const [trigger, setTrigger] = useState([
+    const [selectedEvent, setSelectedEvent] = useState(-1); // index of the event we want to edit. Used in NewOrModifyEvent
+    const [events, setEvents] = useState([]/*[
         {
-            triggerId: 123,
+            eventId: 123,
             name: 'IoT-Button pressed',
-            token: 'F0-34-AC-03',
+            trigger: 'F0-34-AC-03',
             created: 1622741906123,
             lastTriggered: 1623173957000,
-            triggerType: 'REST',
+            triggerActive: true,
+            owned: true,
+            subscribed: true,
         },{
-            triggerId: 123,
+            eventId: 123,
             name: 'Dryer ready (KNX)',
-            token: 'F0-A7-CF-8B',
+            trigger: 'F0-A7-CF-8B',
             created: 1622741816123,
             lastTriggered: 1623163956000,
-            triggerType: 'REST',
+            triggerActive: false,
+            owned: true,
+            subscribed: true,
         },{
-            triggerId: 123,
+            eventId: 123,
             name: '24h scheduled REST call',
-            token: 'F0-34-AC-03',
+            trigger: 'F0-34-AC-03',
             created: 1622741906123,
             lastTriggered: 1623173957000,
-            triggerType: 'REST',
+            triggerActive: true,
+            owned: false,
+            subscribed: true,
         },{
-            triggerId: 123,
+            eventId: 123,
             name: 'QR-code scanned',
-            token: 'F0-1C-54-BF',
+            trigger: 'F0-1C-54-BF',
             created: 1622741906123,
             lastTriggered: 1623173957000,
-            triggerType: 'REST',
+            triggerActive: true,
+            owned: true,
+            subscribed: true,
         },
-    ]);
+    ]*/
+    );
     const [messages, setMessages] = useState([]);
     const [recipients, setRecipients] = useState([]);
     const [devices, setDevices] = useState([]);
+
+
 
     // https://www.savaslabs.com/blog/using-react-global-state-hooks-and-context
     const globalStateInContext = {
         userContext: userContext, setUserContext: setUserContext,
         selectedNaviIndex: selectedNaviIndex, setSelectedNaviIndex: setSelectedNaviIndex,
-        trigger: trigger, setTrigger: setTrigger,
+        events: events, setEvents: setEvents,
         messages: messages, setMessages: setMessages,
         recipients: recipients, setRecipients: setRecipients,
         devices: devices, setDevices: setDevices,
+
+        selectedEvent: selectedEvent, setSelectedEvent: setSelectedEvent,
+        backdropOpen: backdropOpen, setBackdropOpen: setBackdropOpen,
 
     }
 
@@ -114,9 +126,16 @@ function App() {
                         />
                     </PushrNavigation>
                 )}/>
+
+                <Route path='/event/edit' render={(props) => (
+                    <PushrNavigation title={''}>
+                        <NewOrModifyEvent {...props}
+                        />
+                    </PushrNavigation>
+                )}/>
                 <Route path='/event/new/:trigger?' render={(props) => (
                     <PushrNavigation title={''}>
-                        <NewEvent {...props}
+                        <NewOrModifyEvent {...props}
                         />
                     </PushrNavigation>
                 )}/>
@@ -132,6 +151,7 @@ function App() {
                         />
                     </PushrNavigation>
                 )}/>
+
                 <Route path='/messages' render={(props) => (
                     <PushrNavigation title={''}>
                         <Messages {...props}

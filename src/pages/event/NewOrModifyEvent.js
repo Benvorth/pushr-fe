@@ -22,6 +22,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import CloseIcon from '@material-ui/icons/Close';
 
 import { useSnackbar } from 'notistack';
+import {getEventList} from './EventController';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -71,32 +72,41 @@ function copyToClipboard (text) {
     }
 }
 
-export default function NewEvent() {
+let newEvent = true;
+
+export default function NewOrModifyEvent() {
 
     const classes = useStyles();
     let history = useHistory();
     let {trigger} = useParams();
     const { enqueueSnackbar } = useSnackbar();
-    const eventNameElement = useRef(null);
+    const globalState = useContext(AppContext);
 
     const [newTrigger, setNewTrigger] = useState('fetching...');
+    const [eventId, setEventId] = React.useState(null);
     const [eventName, setEventName] = React.useState('');
     const [triggerPermission, setTriggerPermission] = React.useState('everyone');
     const [subscribePermission, setSubscribePermission] = React.useState('everyone');
     const [triggerActive, setTriggerActive] = React.useState(true);
     const [subscribeNow, setSubscribeNow] = React.useState(true);
-    const [copyToClipboardInfoOpen, setCopyToClipboardInfoOpen] = React.useState(false);
-    const [backdropOpen, setBackdropOpen] = React.useState(false);
+    const [invalidEventName, setInvalidEventName] = React.useState(false);
 
-    const globalState = useContext(AppContext);
     useEffect(() => {
         if (!globalState.userContext || !globalState.userContext.accessToken) {
             history.push('/login');
         } else {
-            if (!!trigger) {
+            if (!!trigger) { // new-event-for-given-trigger mode
                 // check if trigger already claimed
                 setNewTrigger(trigger);
-            } else {
+            } else if (globalState.selectedEvent > -1) { // edit-event mode
+                newEvent = false;
+                const pushrEvent = globalState.events[globalState.selectedEvent];
+                setEventId(pushrEvent.eventId);
+                setEventName(pushrEvent.name);
+                setNewTrigger(pushrEvent.trigger);
+                setTriggerActive(pushrEvent.triggerActive);
+                setSubscribeNow(pushrEvent.subscribed);
+            } else { // new-event mode
                 // fetch a random trigger for this trigger
                 fetchNewRandomTrigger();
             }
@@ -154,63 +164,99 @@ export default function NewEvent() {
             });
     }
 
+    let onCancelClicked = () => {
+        globalState.setSelectedEvent(-1);
+        history.goBack();
+    }
+
     let onSaveClicked = () => {
-        setBackdropOpen(true);
-        http.post("/api/event/create_event" +
+
+        if (eventName === null || eventName.trim() === '') {
+            setInvalidEventName(true);
+            return;
+        }
+        globalState.setBackdropOpen(true);
+        http.post("/api/event/save_event" +
             "?event_name=" + encodeURIComponent(eventName) +
-            "&trigger=" + encodeURIComponent(trigger) +
+            (!!eventId ? '&event_id=' + encodeURIComponent(eventId) : '') +
+            "&trigger=" + encodeURIComponent(newTrigger) +
             "&trigger_active=" + encodeURIComponent(triggerActive) +
             "&subscribe=" + encodeURIComponent(subscribeNow),
             '',
             globalState.userContext.accessToken
         )
         .then(response => {
+            if (response.status === 'error') {
+                enqueueSnackbar(response.msg, {variant: 'error'});
+            } else if (response.status === 'success') {
+                const theEvent = response.content;
+                if (newEvent) {
+                    globalState.events.push(theEvent);
+                } else {
+                    let theIdx = -1;
+                    globalState.events.forEach((el, i) => {
+                        if (el.eventId === theEvent.eventId) {
+                            theIdx = i;
+                        }
+                    });
+                    if (theIdx === -1) {
+                        console.error('Can\'t find event to update!');
+                    } else {
+                        globalState.events[theIdx] = theEvent;
+                    }
+                }
+                globalState.setEvents(globalState.events);
+
+                enqueueSnackbar(response.msg, {variant: 'success'});
+            }
             console.info(response);
         })
         .catch(err => {
             console.info('Could not create new Event: ' + err);
         })
         .finally(() => {
-            setBackdropOpen(false);
+            // getEventList(globalState, enqueueSnackbar).then(()=>{
+            globalState.setBackdropOpen(false);
+            globalState.setSelectedEvent(-1);
             history.goBack();
+            // });
         });
-        /*
-        POST
-        '/api/event/create_event?'
-
-        "&event_name=" + eventName +
-        "&trigger=" + trigger +
-        "&trigger_active=" + triggerActive +
-        "&subscribe=" + subscribeNow +
-        */
     }
+
 
     return (
         <div className="container">
-            <Typography variant="h5">New Event</Typography>
+            <Typography variant="h5">{(newEvent ? 'New' : 'Edit')} Event</Typography>
             <form className={classes.root} noValidate autoComplete="off">
-                <TextField required label='Event name' variant='outlined' defaultValue=''
-                           value={eventName}
-                           onChange={handleEventNameChange}/>
+                <TextField
+                    required label='Event name' variant='outlined'
+                    value={eventName}
+                    onChange={handleEventNameChange}
+                    error={invalidEventName}
+                    helperText={(invalidEventName ? 'Invalid event name' : '')}
+                />
                 {/*<TextField disabled label="Trigger" variant="outlined" value={newTrigger}/>*/}
 
                 <FormControl variant="outlined">
                     <InputLabel htmlFor="standard-adornment-password">Trigger URL</InputLabel>
-                    <OutlinedInput InputProps={{readOnly: true,}} id="outlined-basic" label="Trigger URL" variant="outlined"
-                               value={'https://pushr.info/token/' + newTrigger}
-                               endAdornment={
-                                   <InputAdornment position="end">
-                                       <IconButton
-                                           aria-label="toggle password visibility"
-                                           onClick={handleClickCopyTriggerURL}
-                                           onMouseDown={handleMouseDownTriggerURL}
-                                           size={'small'}
-                                           color='secondary'
-                                       >
-                                           <CopyIcon/>
-                                       </IconButton>
-                                   </InputAdornment>
-                               }
+                    <OutlinedInput
+                        InputProps={{readOnly: true,}}
+                        id="outlined-basic" label="Trigger URL"
+                        variant="outlined"
+                        value={'https://pushr.info/token/' + newTrigger}
+                        endAdornment={
+                           <InputAdornment position="end">
+                               <IconButton
+                                   aria-label="toggle password visibility"
+                                   onClick={handleClickCopyTriggerURL}
+                                   onMouseDown={handleMouseDownTriggerURL}
+                                   size={'small'}
+                                   color='secondary'
+                               >
+                                   <CopyIcon/>
+                               </IconButton>
+                           </InputAdornment>
+                        }
                     />
                 </FormControl>
 
@@ -271,10 +317,16 @@ export default function NewEvent() {
 
                 &nbsp;<br/>
                 &nbsp;<br/>
-                <Button variant="outlined" color="primary" className={classes.button} onClick={onSaveClicked}>
+                <Button variant="outlined" color="primary" className={classes.button} onClick={onCancelClicked}>
                     Cancel
                 </Button>
-                <Button variant="contained" color="primary" className={classes.button} onClick={onSaveClicked}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    className={classes.button}
+                    onClick={onSaveClicked}
+                    disabled={(newTrigger === 'fetching...')}
+                >
                     Save
                 </Button>
             </form>

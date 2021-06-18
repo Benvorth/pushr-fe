@@ -289,7 +289,7 @@ export default function PushrNavigation(
 
                             <ListItem button selected={globalState.selectedNaviIndex === 1} onClick={() => handleSwitchTab(1, '/events')}>
                                 <ListItemIcon>
-                                    <Badge badgeContent={globalState.trigger.length} color="primary">
+                                    <Badge badgeContent={globalState.events.length} color="primary">
                                         <Avatar className={classes.largeTrigger}>
                                             <TriggerIcon />
                                         </Avatar>
