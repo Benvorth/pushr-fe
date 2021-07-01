@@ -58,8 +58,7 @@ export default function Dashboard({
         userConsent,
         pushNotificationSupported,
         loading,
-        lastMessage, setLastMessage,
-        onClickTriggerEvent
+        lastMessage, setLastMessage
     } = pushService({
         userSubscription: userSubscription,
         setUserSubscription: setUserSubscription,
@@ -72,12 +71,11 @@ export default function Dashboard({
             history.push('/login');
         }
 
+        globalState.setBackdropOpen(true);
         getEventList(globalState, enqueueSnackbar);
+        globalState.setBackdropOpen(false);
     }, []);
 
-    useEffect(()=>{
-
-    }, []);
 
     /*
     if (!userContext || !('userImgUrl' in userContext) || !('userName' in userContext)) {

@@ -78,7 +78,9 @@ export default function Event() {
             </Fab>
             <Grid container spacing={3}>
                 <Grid item xs={10}>
-                    <Typography variant="h5">{globalState.events.length} Events</Typography>
+                    <Typography variant="h5">
+                        {(globalState.events.length === 0 ? 'No events': globalState.events.length + ' Event' + (globalState.events.length > 1 ? 's' : ''))}
+                    </Typography>
                 </Grid>
                 <Grid item xs={2}>
                     <IconButton aria-label="settings" onClick={handleMenuClick}>

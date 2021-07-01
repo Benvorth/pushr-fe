@@ -2,7 +2,7 @@
 // --Cache
 
 
-let cacheName = 'PUSHr-v11';
+let cacheName = 'PUSHr-v14';
 let filesToCache = [
     '/', /* so browser caches index.html even if user didn't directly type in that */
     '/index.html',
@@ -91,16 +91,24 @@ async function receivePushNotification(event) {
 
     } else {
 
-        const {title, body} = event.data.json();
+        const {title, body, image, icon, badge, timestamp, } = event.data.json();
 
         const options = {
             body: body,
-            icon: 'img/pushr-72.png',
+            // icon: 'img/pushr-72.png',
+            icon: (!!icon ? icon : 'https://pushr.info/img/pushr-72.png'),
+            // icon: 'http://localhost:3000/img/pushr-badge.svg',
             vibrate: [200, 100, 200],
             // image: 'https://via.placeholder.com/128/ff0000',
-            badge: 'img/pushr-16.png',
-            actions: [{action: "Detail", title: "View", icon: 'img/pushr-72.png'}]
+            badge: (!!badge ? badge : 'img/pushr-16.png'),
+            // actions: [{action: "Detail", title: "View", icon: 'img/pushr-72.png'}]
         };
+        if (!!image) {
+            options.image = image;
+        }
+        if (!!timestamp) {
+            options.timestamp = timestamp;
+        }
         // ensure the service worker doesn't terminate before an asynchronous operation has completed.
         event.waitUntil(
             self.registration.showNotification(title, options)

@@ -30,50 +30,11 @@ function App() {
     const [selectedNaviIndex, setSelectedNaviIndex] = useState(0);
 
     const [token, setToken] = useState(null);
-    const [backdropOpen, setBackdropOpen] = useState(null);
+    const [backdropOpen, setBackdropOpen] = useState(false);
     const [userSubscription, setUserSubscription] = useState(null);
 
     const [selectedEvent, setSelectedEvent] = useState(-1); // index of the event we want to edit. Used in NewOrModifyEvent
-    const [events, setEvents] = useState([]/*[
-        {
-            eventId: 123,
-            name: 'IoT-Button pressed',
-            trigger: 'F0-34-AC-03',
-            created: 1622741906123,
-            lastTriggered: 1623173957000,
-            triggerActive: true,
-            owned: true,
-            subscribed: true,
-        },{
-            eventId: 123,
-            name: 'Dryer ready (KNX)',
-            trigger: 'F0-A7-CF-8B',
-            created: 1622741816123,
-            lastTriggered: 1623163956000,
-            triggerActive: false,
-            owned: true,
-            subscribed: true,
-        },{
-            eventId: 123,
-            name: '24h scheduled REST call',
-            trigger: 'F0-34-AC-03',
-            created: 1622741906123,
-            lastTriggered: 1623173957000,
-            triggerActive: true,
-            owned: false,
-            subscribed: true,
-        },{
-            eventId: 123,
-            name: 'QR-code scanned',
-            trigger: 'F0-1C-54-BF',
-            created: 1622741906123,
-            lastTriggered: 1623173957000,
-            triggerActive: true,
-            owned: true,
-            subscribed: true,
-        },
-    ]*/
-    );
+    const [events, setEvents] = useState([]);
     const [messages, setMessages] = useState([]);
     const [recipients, setRecipients] = useState([]);
     const [devices, setDevices] = useState([]);

@@ -26,8 +26,10 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import {useSnackbar} from 'notistack';
 import AppContext from '../../AppContext';
-import {deleteEvent} from './EventController';
+import {deleteEvent, subscribeUnSubscribeEvent, triggerEvent} from './EventController';
 import {useHistory} from 'react-router-dom';
+import PushrDialog from '../elements/PushrDialog';
+import {copyToClipboard} from '../../util/PushrUtils';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -124,13 +126,15 @@ export default function EventList({elements}) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [selectedEvent, setSelectedEvent] = React.useState(null);
     const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+    const [subscribeDialogOpen, setSubscribeDialogOpen] = React.useState(false);
+    const [unSubscribeDialogOpen, setUnsubscribeDialogOpen] = React.useState(false);
+    const [triggerEventDialogOpen, setTriggerEventDialogOpen] = React.useState(false);
     const [contextMenuOpen, setContextMenuOpen] = React.useState(-1);
 
     const handleContextMenuClick = (idx, event) => {
         setContextMenuOpen(idx)
         setAnchorEl(event.currentTarget);
     };
-
     const handleContextMenuClose = () => {
         setAnchorEl(null);
         setContextMenuOpen(-1);
@@ -141,7 +145,7 @@ export default function EventList({elements}) {
         history.push('/event/edit/');
     }
 
-    const handleDelete = (selEv) => {
+    const handleDeleteDialogOpen = (selEv) => {
         handleContextMenuClose();
         setSelectedEvent(selEv);
         setDeleteDialogOpen(true);
@@ -150,16 +154,77 @@ export default function EventList({elements}) {
         setSelectedEvent(null);
         setDeleteDialogOpen(false);
     }
-
-    const handleDoDeleteEvent = () => {
-        setSelectedEvent(null);
-        setDeleteDialogOpen(false);
+    const handleDoDelete = () => {
         if (!selectedEvent) {
             console.error('No event selected for deletion');
             return;
         }
-        deleteEvent(selectedEvent, globalState, enqueueSnackbar)
+        deleteEvent(selectedEvent, globalState, enqueueSnackbar);
+        setSelectedEvent(null);
+        setDeleteDialogOpen(false);
+    }
 
+    const handleSubscribeDialogOpen = (selEv) => {
+        handleContextMenuClose();
+        setSelectedEvent(selEv);
+        setSubscribeDialogOpen(true);
+    }
+    const handleSubscribeDialogClose = () => {
+        setSelectedEvent(null);
+        setSubscribeDialogOpen(false);
+    }
+    const handleDoSubscribe = () => {
+        if (!selectedEvent) {
+            console.error('No event selected for subscription');
+            return;
+        }
+        subscribeUnSubscribeEvent(selectedEvent, globalState, enqueueSnackbar, true);
+        setSelectedEvent(null);
+        setSubscribeDialogOpen(false);
+    }
+
+    const handleUnSubscribeDialogOpen = (selEv) => {
+        handleContextMenuClose();
+        setSelectedEvent(selEv);
+        setUnsubscribeDialogOpen(true);
+    }
+    const handleUnSubscribeDialogClose = () => {
+        setSelectedEvent(null);
+        setUnsubscribeDialogOpen(false);
+    }
+    const handleDoUnSubscribe = () => {
+        if (!selectedEvent) {
+            console.error('No event selected for subscription');
+            return;
+        }
+        subscribeUnSubscribeEvent(selectedEvent, globalState, enqueueSnackbar, false);
+        setSelectedEvent(null);
+        setUnsubscribeDialogOpen(false);
+    }
+
+    const handleTriggerDialogOpen = (selEv) => {
+        handleContextMenuClose();
+        setSelectedEvent(selEv);
+        setTriggerEventDialogOpen(true);
+    }
+    const handleTriggerDialogClose = () => {
+        setSelectedEvent(null);
+        setTriggerEventDialogOpen(false);
+    }
+    const handleDoTriggerEvent = () => {
+        if (!selectedEvent) {
+            console.error('No event selected for subscription');
+            return;
+        }
+        triggerEvent(selectedEvent.trigger, globalState, enqueueSnackbar);
+        setSelectedEvent(null);
+        setUnsubscribeDialogOpen(false);
+    }
+
+    const handleCopyClpbTriggerURL = (elEv) => {
+        handleContextMenuClose();
+        copyToClipboard('https://pushr.info/token/' + elEv.trigger);
+        enqueueSnackbar('Trigger URL copied to clipboard', {variant: 'success',});
     }
 
     return (
@@ -173,7 +238,7 @@ export default function EventList({elements}) {
                                     <Badge
                                         badgeContent={0}
                                         color="secondary">
-                                        <Grid  spacing={0}>
+                                        <Grid >
                                             <Grid item sm={12} xs={12}>
                                                 <Avatar className={classes.largeTrigger}>
                                                     <QRcode
@@ -203,9 +268,13 @@ export default function EventList({elements}) {
                                             onClose={handleContextMenuClose}
                                         >
                                             <MenuItem onClick={()=>handleEdit(number)}>Edit Event</MenuItem>
-                                            <MenuItem onClick={()=>handleDelete(element)}>Delete Event</MenuItem>
-                                            <MenuItem onClick={handleContextMenuClose}>Trigger Event</MenuItem>
-                                            <MenuItem onClick={handleContextMenuClose}>Copy Trigger-URL</MenuItem>
+                                            <MenuItem onClick={()=>handleDeleteDialogOpen(element)}>Delete Event</MenuItem>
+                                            <MenuItem onClick={()=>handleTriggerDialogOpen(element)}>Trigger Event</MenuItem>
+                                            {element.subscribed ?
+                                                <MenuItem onClick={() => handleUnSubscribeDialogOpen(element)}>Unsubscribe Event</MenuItem> :
+                                                <MenuItem onClick={() => handleSubscribeDialogOpen(element)}>Subscribe Event</MenuItem>
+                                            }
+                                            <MenuItem onClick={()=>handleCopyClpbTriggerURL(element)}>Copy Trigger-URL</MenuItem>
                                             <MenuItem onClick={handleContextMenuClose}>Download QR-Code</MenuItem>
                                         </Menu>
                                     </>
@@ -221,10 +290,10 @@ export default function EventList({elements}) {
                                         // 'Created: ' + new Date(element.created).toLocaleString("en-US") + ', ' +
                                         // 'Created: ' + timeSince(element.created) + ' ago      _' +
                                     }
-                                        {'Created: ' + timeSince(element.created) + ' ago'}<br/>
                                         {(element.lastTriggered === -1 ? 'Never triggered' : 'Last triggered ' + timeSince(element.lastTriggered) + ' ago')}<br/>
+                                        {'Created: ' + timeSince(element.created) + ' ago'}<br/>
                                         <Chip label={element.triggerActive ? "Active" : "Inactive"} disabled={!element.triggerActive} size='small' />&nbsp;
-                                        {element.owned ? <Chip label='Owned' size='small' /> : null}&nbsp;
+                                        {/*element.owned ? <Chip label='Owned' size='small' /> : null*/}&nbsp;
 
                                         {element.subscribed ? <Chip label="Subscribed" size="small" /> : null}&nbsp;
                                     </>
@@ -236,30 +305,53 @@ export default function EventList({elements}) {
                 </Grid>
             ))}
 
-            {(selectedEvent !== null ?
-            <Dialog
-                open={deleteDialogOpen}
-                onClose={handleDeleteDialogClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">{"Are you sure?"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        Do you really want to delete this event?<br/>
-                        <b>{selectedEvent.name}</b><br/>
-                        (trigger {selectedEvent.trigger})
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleDeleteDialogClose} color='primary' autoFocus variant="outlined">
-                        Cancel
-                    </Button>
-                    <Button onClick={handleDoDeleteEvent} color='secondary' variant="outlined">
-                        Delete
-                    </Button>
-                </DialogActions>
-            </Dialog> : null)}
+            {(selectedEvent !== null && deleteDialogOpen ?
+                <PushrDialog
+                    title={'Delete'}
+                    body={'Delete Event \'' + selectedEvent.name + '\'?'}
+                    open={deleteDialogOpen}
+                    onClose={handleDeleteDialogClose}
+                    onClickAction={handleDoDelete}
+                    cancelLabel={'Cancel'}
+                    actionLabel={'Delete'}
+                />
+            : null)}
+
+            {(selectedEvent !== null && subscribeDialogOpen ?
+                <PushrDialog
+                    title={'Subscribe'}
+                    body={'Subscribe to Event \'' + selectedEvent.name + '\'?'}
+                    open={subscribeDialogOpen}
+                    onClose={handleSubscribeDialogClose}
+                    onClickAction={handleDoSubscribe}
+                    cancelLabel={'Cancel'}
+                    actionLabel={'Subscribe'}
+                />
+            : null)}
+
+            {(selectedEvent !== null && unSubscribeDialogOpen ?
+                <PushrDialog
+                    title={'Unsubscribe'}
+                    body={'Unsubscribe from Event \'' + selectedEvent.name + '\'?'}
+                    open={unSubscribeDialogOpen}
+                    onClose={handleUnSubscribeDialogClose}
+                    onClickAction={handleDoUnSubscribe}
+                    cancelLabel={'Cancel'}
+                    actionLabel={'Unsubscribe'}
+                />
+            : null)}
+
+            {(selectedEvent !== null && triggerEventDialogOpen ?
+                <PushrDialog
+                    title={'Trigger'}
+                    body={'Trigger Event \'' + selectedEvent.name + '\'?'}
+                    open={triggerEventDialogOpen}
+                    onClose={handleTriggerDialogClose}
+                    onClickAction={handleDoTriggerEvent}
+                    cancelLabel={'Cancel'}
+                    actionLabel={'Trigger'}
+                />
+                : null)}
         </div>
     );
 }

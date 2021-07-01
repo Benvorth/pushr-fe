@@ -220,26 +220,6 @@ export default function usePushNotifications({userSubscription, setUserSubscript
         setLoading(false);
     };
 
-    const onClickTriggerEvent = async (trigger) => {
-        setLoading(true);
-        const existingSubscription = await getUserSubscription();
-
-        await http.get(
-            '/api/push' +
-            '?trigger=' + encodeURIComponent(trigger),
-            userContext.accessToken
-        ).then(response => {
-            console.log('Token claimed successfully: ' + JSON.stringify(response));
-            enqueueSnackbar('Trigger ' + trigger + ' pushed successfully.',{variant: 'success'});
-            setLoading(false);
-        })
-            .catch(err => {
-                console.info('Could not push trigger ' + trigger);
-                setLoading(false);
-                enqueueSnackbar('Couldn\'t push trigger', {variant: 'error'});
-            });
-    }
-
 
 
     /**
@@ -256,6 +236,5 @@ export default function usePushNotifications({userSubscription, setUserSubscript
         userSubscription,
         loading,
         lastMessage, setLastMessage,
-        onClickTriggerEvent,
     };
 }

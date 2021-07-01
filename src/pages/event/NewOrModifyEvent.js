@@ -22,7 +22,8 @@ import Snackbar from '@material-ui/core/Snackbar';
 import CloseIcon from '@material-ui/icons/Close';
 
 import { useSnackbar } from 'notistack';
-import {getEventList} from './EventController';
+import {fetchRandomTrigger, getEventList, saveOrUpdateEvent} from './EventController';
+import {copyToClipboard} from '../../util/PushrUtils';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -46,31 +47,6 @@ const useStyles = makeStyles((theme) => ({
         color: '#fff',
     },
 }));
-
-function copyToClipboard (text) {
-    if (window.clipboardData && window.clipboardData.setData) {
-        // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
-        return window.clipboardData.setData("Text", text);
-
-    }
-    else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
-        var textarea = document.createElement("textarea");
-        textarea.textContent = text;
-        textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in Microsoft Edge.
-        document.body.appendChild(textarea);
-        textarea.select();
-        try {
-            return document.execCommand("copy");  // Security exception may be thrown by some browsers.
-        }
-        catch (ex) {
-            console.warn("Copy to clipboard failed.", ex);
-            return false;
-        }
-        finally {
-            document.body.removeChild(textarea);
-        }
-    }
-}
 
 let newEvent = true;
 
@@ -115,19 +91,13 @@ export default function NewOrModifyEvent() {
      // an empty array if you just want to run it once after component mounted.
         []);
 
-    const handleCopyToClipboardInfoOpen = () => {
-        enqueueSnackbar('Trigger URL copied to clipboard', {
-            variant: 'success',
-        });
-    };
-
     const handleEventNameChange = (event)=> {
         setEventName(event.target.value);
     }
 
     const handleClickCopyTriggerURL = () => {
         copyToClipboard('https://pushr.info/token/' + newTrigger);
-        handleCopyToClipboardInfoOpen();
+        enqueueSnackbar('Trigger URL copied to clipboard', {variant: 'success',});
     }
 
     const handleMouseDownTriggerURL = (event) => {
@@ -151,17 +121,10 @@ export default function NewOrModifyEvent() {
 
     const fetchNewRandomTrigger = () => {
         setNewTrigger('fetching...');
-        http
-            // .post("/api/subscribe", userSubscription)
-            .get("/api/event/get_new_trigger",
-                globalState.userContext.accessToken)
-            .then(response => {
-                console.log('new trigger ' + response.msg);
-                setNewTrigger(response.msg);
-            })
-            .catch(err => {
-                console.info('Could not get new trigger: ' + err);
-            });
+        fetchRandomTrigger(globalState, enqueueSnackbar)
+        .then((fetchedTrigger) => {
+            setNewTrigger(fetchedTrigger);
+        })
     }
 
     let onCancelClicked = () => {
@@ -175,51 +138,13 @@ export default function NewOrModifyEvent() {
             setInvalidEventName(true);
             return;
         }
-        globalState.setBackdropOpen(true);
-        http.post("/api/event/save_event" +
-            "?event_name=" + encodeURIComponent(eventName) +
-            (!!eventId ? '&event_id=' + encodeURIComponent(eventId) : '') +
-            "&trigger=" + encodeURIComponent(newTrigger) +
-            "&trigger_active=" + encodeURIComponent(triggerActive) +
-            "&subscribe=" + encodeURIComponent(subscribeNow),
-            '',
-            globalState.userContext.accessToken
-        )
-        .then(response => {
-            if (response.status === 'error') {
-                enqueueSnackbar(response.msg, {variant: 'error'});
-            } else if (response.status === 'success') {
-                const theEvent = response.content;
-                if (newEvent) {
-                    globalState.events.push(theEvent);
-                } else {
-                    let theIdx = -1;
-                    globalState.events.forEach((el, i) => {
-                        if (el.eventId === theEvent.eventId) {
-                            theIdx = i;
-                        }
-                    });
-                    if (theIdx === -1) {
-                        console.error('Can\'t find event to update!');
-                    } else {
-                        globalState.events[theIdx] = theEvent;
-                    }
-                }
-                globalState.setEvents(globalState.events);
 
-                enqueueSnackbar(response.msg, {variant: 'success'});
-            }
-            console.info(response);
-        })
-        .catch(err => {
-            console.info('Could not create new Event: ' + err);
-        })
-        .finally(() => {
-            // getEventList(globalState, enqueueSnackbar).then(()=>{
+        saveOrUpdateEvent(globalState, enqueueSnackbar,
+            eventName, eventId, newTrigger, triggerActive, subscribeNow)
+        .then(()=>{
             globalState.setBackdropOpen(false);
             globalState.setSelectedEvent(-1);
             history.goBack();
-            // });
         });
     }
 

@@ -5,7 +5,8 @@ import {
     makeStyles,
     withStyles,
     ThemeProvider,
-    unstable_createMuiStrictModeTheme as createMuiTheme
+    // unstable_createMuiStrictModeTheme as createMuiTheme
+    createMuiTheme
 } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
@@ -146,7 +147,7 @@ const useStyles = makeStyles(styles);
 
 // https://krasimirtsonev.com/blog/article/children-in-jsx
 export default function PushrNavigation(
-    {children, title, backdropOpen}) {
+    {children, title}) {
 
     const classes = useStyles();
     let history = useHistory();
@@ -218,7 +219,7 @@ export default function PushrNavigation(
             <ThemeProvider theme={theme}>
                 <div className={classes.root}>
                     <CssBaseline />
-                    <Backdrop className={classes.backdrop} open={backdropOpen}>
+                    <Backdrop className={classes.backdrop} open={globalState.backdropOpen}>
                         <CircularProgress color="inherit" />
                     </Backdrop>
                     <AppBar
