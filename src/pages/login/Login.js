@@ -72,29 +72,31 @@ export default function Login() {
 
     const responseGoogle = async (googleUser) => {
 
-        let profile = googleUser.getBasicProfile();
+        if (!!googleUser) {
 
-        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-        console.log('Name: ' + profile.getName());
-        console.log('Image URL: ' + profile.getImageUrl());
-        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+            let profile = googleUser.getBasicProfile();
 
-        // user token for backend:
-        const id_token = googleUser.getAuthResponse().id_token;
-        console.log('ID token: ' + id_token);
+            console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+            console.log('Name: ' + profile.getName());
+            console.log('Image URL: ' + profile.getImageUrl());
+            console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
 
-        const res = await http.put('/api/user/google', id_token);
+            // user token for backend:
+            const id_token = googleUser.getAuthResponse().id_token;
+            console.log('ID token: ' + id_token);
 
-        globalState.setUserContext({
-            accessToken: res.token,
-            accessTokenCreated: res.created,
-            accessTokenExpires: res.expires,
-            userName: profile.getName(),
-            userImgUrl: profile.getImageUrl(),
-            loginProvider: 'Google'
+            const res = await http.put('/api/user/google', id_token);
 
-        });
+            globalState.setUserContext({
+                accessToken: res.token,
+                accessTokenCreated: res.created,
+                accessTokenExpires: res.expires,
+                userName: profile.getName(),
+                userImgUrl: profile.getImageUrl(),
+                loginProvider: 'Google'
 
+            });
+        }
         /*
         console.log(response);
         let res = response.profileObj;
