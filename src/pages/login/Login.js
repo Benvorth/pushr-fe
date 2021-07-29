@@ -194,7 +194,7 @@ export default function Login() {
                                     buttonText='Login with Google'
                                     onSuccess={false}
                                     onFailure={false}
-                                    isSignedIn={true}
+                                    isSignedIn={false}
                                     fullWidth
                                     render={renderProps => (
                                         <Button
@@ -213,7 +213,7 @@ export default function Login() {
                                     buttonText="Login with Google"
                                     onSuccess={false}
                                     onFailure={false}
-                                    isSignedIn={true}
+                                    isSignedIn={false}
                                     fullWidth
                                     render={renderProps => (
                                         <Button
