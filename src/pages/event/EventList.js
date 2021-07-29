@@ -4,7 +4,6 @@ import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import Badge from '@material-ui/core/Badge';
 import Avatar from '@material-ui/core/Avatar';
-import TriggerIcon from '@material-ui/icons/Error';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import React, {useContext} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
@@ -16,14 +15,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 
 import QRcode from 'qrcode.react'
-import Typography from '@material-ui/core/Typography';
 import Chip from '@material-ui/core/Chip';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogActions from '@material-ui/core/DialogActions';
-import Button from '@material-ui/core/Button';
 import {useSnackbar} from 'notistack';
 import AppContext from '../../AppContext';
 import {deleteEvent, subscribeUnSubscribeEvent, triggerEvent} from './EventController';

@@ -14,6 +14,7 @@ import Envelopes from './Envelopes';
 import AppContext from '../../AppContext';
 import {getEventList} from '../event/EventController';
 import {useSnackbar} from 'notistack';
+import {getMessageList} from '../messages/MessageController';
 
 
 const Loading = ({loading}) => (loading ?
@@ -73,6 +74,7 @@ export default function Dashboard({
 
         globalState.setBackdropOpen(true);
         getEventList(globalState, enqueueSnackbar);
+        getMessageList(globalState, enqueueSnackbar);
         globalState.setBackdropOpen(false);
     }, []);
 

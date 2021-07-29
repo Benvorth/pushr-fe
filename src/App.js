@@ -6,13 +6,14 @@ import Dashboard from './pages/dashboard/Dashboard';
 import Event from './pages/event/Event';
 import SubscribeEvent from './pages/event/SubscribeEvent';
 import NewOrModifyEvent from './pages/event/NewOrModifyEvent';
-import Messages from './pages/Messages';
+import Messages from './pages/messages/Messages';
 import Recipients from './pages/Recipients';
 import Settings from './pages/settings/Settings';
 import Logout from './pages/Logout';
 import Token from './pages/Token';
 import EnvelopeWizard from './pages/dashboard/EnvelopeWizzard';
 import PushrNavigation from './pages/navigation/PushrNavigation';
+import NewOrModifyMessage from './pages/messages/NewOrModifyMessage';
 
 
 // process.env.NODE_ENV === "production"
@@ -34,6 +35,7 @@ function App() {
     const [userSubscription, setUserSubscription] = useState(null);
 
     const [selectedEvent, setSelectedEvent] = useState(-1); // index of the event we want to edit. Used in NewOrModifyEvent
+    const [selectedMessage, setSelectedMessage] = useState(-1); // index of the event we want to edit. Used in NewOrModifyEvent
     const [events, setEvents] = useState([]);
     const [messages, setMessages] = useState([]);
     const [recipients, setRecipients] = useState([]);
@@ -51,6 +53,7 @@ function App() {
         devices: devices, setDevices: setDevices,
 
         selectedEvent: selectedEvent, setSelectedEvent: setSelectedEvent,
+        selectedMessage: selectedMessage, setSelectedMessage: setSelectedMessage,
         backdropOpen: backdropOpen, setBackdropOpen: setBackdropOpen,
 
     }
@@ -119,6 +122,19 @@ function App() {
                         />
                     </PushrNavigation>
                 )}/>
+                <Route path='/message/new' render={(props) => (
+                    <PushrNavigation title={''}>
+                        <NewOrModifyMessage {...props}
+                        />
+                    </PushrNavigation>
+                )}/>
+                <Route path='/message/edit' render={(props) => (
+                    <PushrNavigation title={''}>
+                        <NewOrModifyMessage {...props}
+                        />
+                    </PushrNavigation>
+                )}/>
+
                 <Route path='/recipients' render={(props) => (
                     <PushrNavigation title={'Recipients'}>
                         <Recipients {...props}

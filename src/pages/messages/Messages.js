@@ -1,28 +1,32 @@
 import React, {useContext, useEffect} from 'react'
 import { useHistory } from "react-router-dom";
-import {Fab} from '@material-ui/core'
-import AddIcon from '@material-ui/icons/Add';
+
 import AppContext from '../../AppContext';
-import EventList from './EventList';
-import Typography from '@material-ui/core/Typography';
-import CopyIcon from '@material-ui/icons/FileCopy';
-import IconButton from '@material-ui/core/IconButton';
-import http from '../../util/http';
+import MessageList from './MessageList';
+import {makeStyles} from '@material-ui/core/styles';
 import {useSnackbar} from 'notistack';
-import {getEventList} from './EventController';
+import {getEventList} from '../event/EventController';
+import {getMessageList} from './MessageController';
+import AddIcon from '@material-ui/icons/Add';
+import {Fab} from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import Grid from '@material-ui/core/Grid';
-import {makeStyles} from '@material-ui/core/styles';
+import EventList from '../event/EventList';
+
 
 const useStyles = makeStyles((theme) => ({
     fabButton: {
         position: 'absolute', zIndex: 1, top: 50, left: 0, right: 0, margin: '0 auto',
+        color: theme.palette.getContrastText('#4f5b62'),
+        backgroundColor: '#4f5b62',
     },
 }));
 
-export default function Event() {
+export default function Messages() {
 
     let history = useHistory();
     const classes = useStyles();
@@ -36,17 +40,18 @@ export default function Event() {
     useEffect(() => {
         if (!globalState.userContext || !globalState.userContext.accessToken) {
             history.push('/login');
-        } else if (globalState.events.length === 0) {
-            // getEventList(globalState, enqueueSnackbar);
+        } else if (globalState.messages.length === 0) {
+            // getMessageList(globalState, enqueueSnackbar);
         }
     }, []);
 
-    const handleNewEventClick = () => {
-        history.push('/event/new/');
+    const handleNewMessageClick = () => {
+        history.push('/message/new/');
     }
 
-    const refreshEventList = () => {
-        getEventList(globalState, enqueueSnackbar).then(handleMenuClose);
+    const refreshMessageList = () => {
+        debugger;
+        getMessageList(globalState, enqueueSnackbar).then(handleMenuClose);
     }
     const handleMenuClick = (event) => {
         setMenuAnchorEl(event.currentTarget);
@@ -73,13 +78,13 @@ export default function Event() {
 
     return (
         <div className="container">
-            <Fab color="secondary" className={classes.fabButton} onClick={handleNewEventClick}>
+            <Fab color="inherit" className={classes.fabButton} onClick={handleNewMessageClick}>
                 <AddIcon/>
             </Fab>
             <Grid container spacing={3}>
                 <Grid item xs={10}>
                     <Typography variant="h5">
-                        {(globalState.events.length === 0 ? 'No events': globalState.events.length + ' Event' + (globalState.events.length > 1 ? 's' : ''))}
+                        {(globalState.messages.length === 0 ? 'No messages': globalState.messages.length + ' Message' + (globalState.messages.length > 1 ? 's' : ''))}
                     </Typography>
                 </Grid>
                 <Grid item xs={2}>
@@ -93,21 +98,20 @@ export default function Event() {
                         open={Boolean(menuAnchorEl)}
                         onClose={handleMenuClose}
                     >
-                        <MenuItem onClick={handleNewEventClick}>Create new Event</MenuItem>
+                        <MenuItem onClick={handleNewMessageClick}>Create new Message</MenuItem>
                         <MenuItem onClick={()=>handleSort('created', true)}>Order by 'Created' (ascending)</MenuItem>
                         <MenuItem onClick={()=>handleSort('created', false)}>Order by 'Created' (decending)</MenuItem>
-                        <MenuItem onClick={()=>handleSort('lastTriggered', true)}>Order by 'Last triggered' (ascending)</MenuItem>
-                        <MenuItem onClick={()=>handleSort('lastTriggered', false)}>Order by 'Last triggered' (decending)</MenuItem>
-                        <MenuItem onClick={()=>handleSort('name', true)}>Order by 'Name' (ascending)</MenuItem>
-                        <MenuItem onClick={()=>handleSort('name', false)}>Order by 'Name' (decending)</MenuItem>
-                        <MenuItem onClick={refreshEventList}>Refresh from server</MenuItem>
+                        <MenuItem onClick={()=>handleSort('title', true)}>Order by 'Title' (ascending)</MenuItem>
+                        <MenuItem onClick={()=>handleSort('title', false)}>Order by 'Title' (decending)</MenuItem>
+                        <MenuItem onClick={()=>refreshMessageList()}>Refresh from server</MenuItem>
                     </Menu>
                 </Grid>
             </Grid>
 
             <div>
-                <EventList elements={globalState.events}/>
+                <MessageList elements={globalState.messages}/>
             </div>
+
         </div>
     )
 }
