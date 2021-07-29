@@ -70,10 +70,13 @@ export default function Login() {
     // const [globalState, dispatchGlobalState] = useTracked();
     const globalState = useContext(AppContext);
 
-    const responseGoogle = async (googleUser) => {
+    const [googleUserSignedIn, setGoogleUserSignedIn] = React.useState(false);
 
+
+    const responseGoogle = async (googleUser) => {
+        debugger;
         if (!!googleUser) {
-debugger;
+
             let profile = googleUser.getBasicProfile();
 
             console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
@@ -96,6 +99,8 @@ debugger;
                 loginProvider: 'Google'
 
             });
+
+            setGoogleUserSignedIn(true);
         }
         /*
         console.log(response);
@@ -171,7 +176,7 @@ debugger;
                                     buttonText="Login with Google"
                                     onSuccess={responseGoogle}
                                     onFailure={responseGoogle}
-                                    isSignedIn={true}
+                                    isSignedIn={googleUserSignedIn}
                                     fullWidth
                                     render={renderProps => (
                                         <Button
