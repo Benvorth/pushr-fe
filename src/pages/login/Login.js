@@ -70,8 +70,17 @@ export default function Login() {
     // const [globalState, dispatchGlobalState] = useTracked();
     const globalState = useContext(AppContext);
 
-    const [googleUserSignedIn, setGoogleUserSignedIn] = React.useState(false);
+    // const [googleUserSignedIn, setGoogleUserSignedIn] = React.useState(false);
 
+
+    const responseGoogleFailure = async (googleUser) => {
+        console.error('Error logging in with google: ')
+        console.error(googleUser)
+        if (!!googleUser.error) {
+            console.log('Error logging in: ' + googleUser.error);
+            console.log('Error logging in: ' + googleUser.details);
+        }
+    }
 
     const responseGoogle = async (googleUser) => {
         debugger;
@@ -104,7 +113,7 @@ export default function Login() {
 
                 });
 
-                setGoogleUserSignedIn(true);
+                // setGoogleUserSignedIn(true);
             }
         }
         /*
@@ -180,8 +189,8 @@ export default function Login() {
                                     clientId="217519645658-9ink26e7bn8q4p59k7799kvi9qdqtghe.apps.googleusercontent.com"
                                     buttonText="Login with Google"
                                     onSuccess={responseGoogle}
-                                    onFailure={responseGoogle}
-                                    isSignedIn={googleUserSignedIn}
+                                    onFailure={responseGoogleFailure}
+                                    isSignedIn={true}
                                     fullWidth
                                     render={renderProps => (
                                         <Button
