@@ -202,7 +202,7 @@ export default function Login() {
                                         </Button>
                                     )}
                                 />
-
+                                {/*
                                 <GoogleLogin
                                     clientId='123'
                                     buttonText='Login with Google'
@@ -239,7 +239,7 @@ export default function Login() {
                                                  Login using GitHub
                                         </Button>
                                     )}
-                                />
+                                />*/}
                                 {/*
                         <FacebookLogin
                             appId="123"
